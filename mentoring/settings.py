@@ -1,6 +1,32 @@
 import os
+from fnmatch import fnmatch
+from django.conf import global_settings
+
 PROJECT_DIR = os.path.dirname(__file__)
 HOME_DIR = os.path.normpath(os.path.join(PROJECT_DIR, '../'))
+
+LDAP_URL = "ldap://ldap.oit.pdx.edu"
+LDAP_BASE_DN = 'dc=pdx,dc=edu'
+
+# allow the use of wildcards in the INTERAL_IPS setting
+class IPList(list):
+    # do a unix-like glob match
+    # E.g. '192.168.1.100' would match '192.*'
+    def __contains__(self, ip):
+        for ip_pattern in self:
+            if fnmatch(ip, ip_pattern):
+                return True
+        return False
+
+INTERNAL_IPS = IPList(['10.*', '192.168.*'])
+
+CAS_SERVER_URL = 'https://sso.pdx.edu/cas/login'
+# prevents CAS login on the admin pages
+CAS_ADMIN_PREFIX = 'admin'
+
+# for django-cas to work, it needs HttpRequest.get_host(), which requires this setting
+# https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = ['.pdx.edu']
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -75,6 +101,10 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+)
+
+AUTHENTICATION_BACKENDS = global_settings.AUTHENTICATION_BACKENDS + (
+    'mentoring.backends.PSUBackend',
 )
 
 ROOT_URLCONF = 'mentoring.urls'

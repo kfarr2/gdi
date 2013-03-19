@@ -1,3 +1,7 @@
+/* 
+ * dark green: 566E10;
+ * light green: 8B9822
+ */
 body { background-color:#efefef; }
 label {
     display:block;
@@ -11,6 +15,36 @@ textarea {
     display:block;
 }
 
+.clear {
+    clear:both;
+}
+
+.ment-button {
+    background-color:#8B9822;
+    width:250px;
+    border-radius:10px;
+}
+
+.ment-button a {
+    color:inherit;
+}
+
+.ment-button h3 {
+    text-align:center;
+    color:#fff;
+    margin-bottom:0;
+    margin-top:0;
+}
+
+.mentor-button {
+    float:left;
+    margin-left:100px;
+}
+
+.mentee-button {
+    float:right;
+    margin-right:100px;
+}
 
 #content {
     background-color:#fff;

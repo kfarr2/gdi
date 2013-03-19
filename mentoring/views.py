@@ -5,4 +5,6 @@ from .surveys.models import Survey, Question
 from .surveys.forms import SurveyForm
 
 def home(request):
-    return HttpResponse("hi")
+    return render(request, "home.html", {
+
+    })

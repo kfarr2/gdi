@@ -8,9 +8,15 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', views.home),
+
+    # surveys
     url(r'^surveys/mentor/?$', surveys.views.survey, {"survey_id": 1}, name='surveys-mentor'),
     url(r'^surveys/mentee/?$', surveys.views.survey, {"survey_id": 2}, name='surveys-mentee'),
     url(r'^surveys/done/?$', surveys.views.done, name='surveys-done'),
+
+    # auth
+    url(r'^accounts/login/$', 'django_cas.views.login', name='accounts-login'),
+    url(r'^accounts/logout/$', 'django_cas.views.logout', name='accounts-logout', kwargs={"next_page": "/"}),
     # Examples:
     # url(r'^$', 'example.views.home', name='home'),
     # url(r'^example/', include('example.foo.urls')),

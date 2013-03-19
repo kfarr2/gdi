@@ -108,10 +108,10 @@ class SurveyForm(forms.Form):
 
         return item
 
-    def save(self):
+    def save(self, user):
         cleaned = self.cleaned_data
         response = Response()
-        response.user = User.objects.get(username='root')
+        response.user = user
         response.survey = self.survey
         response.save()
 

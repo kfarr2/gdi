@@ -2,9 +2,18 @@
 
 {% block page_title %}Welcome{% endblock %}
 
-{% block header_title %}IT WORKED!{% endblock %}
-
 {% block content %}
-    <p>Hello {{ user_agent }} visiting from {{ ip }}</p>
+    <h2>Mentor-Mentee Matching</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur euismod, enim a tristique fermentum, leo felis sagittis odio, eget congue purus metus sit amet sapien. Phasellus suscipit dignissim est, ut faucibus nibh tincidunt at. Ut sit amet ante a nisl euismod elementum. Nulla at mauris at justo gravida scelerisque id eu erat. Maecenas ut varius velit. Etiam dolor enim, cursus pellentesque porttitor in, lacinia non eros. Aenean vehicula sapien vitae nulla congue molestie.</p>
+
+    <div class="ment-button mentor-button">
+        <h3><a href="{% url 'surveys-mentor' %}">I am a mentor</a></h3>
+    </div>
+
+    <div class="ment-button mentee-button">
+        <h3><a href="{% url 'surveys-mentee' %}">I want to be mentored</a></h3>
+    </div>
+
+    <div class="clear"></div>
 {% endblock %}
 
