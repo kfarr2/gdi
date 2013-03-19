@@ -65,6 +65,9 @@ class Choice(models.Model):
         db_table = 'choice'
         ordering = ['rank']
 
+    def __unicode__(self):
+        return u'%s' % (self.body)
+
 class Response(models.Model):
     response_id = models.AutoField(primary_key=True)
     created_on = models.DateTimeField(auto_now_add=True)

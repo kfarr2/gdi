@@ -5,7 +5,7 @@
 {% block content %}
 <form method="post" action="">
     {% csrf_token %}
-    {% for field in form %}
+    {% for field in form.questionFields %}
         {% if field.question.type == Question.HEADING %}
             {% include 'surveys/_heading.html' %}
         {% elif field.question.type == Question.CHECKBOX %}

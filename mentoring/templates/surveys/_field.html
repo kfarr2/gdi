@@ -10,7 +10,7 @@
     {{ field }}
 {% else %}
     <tr>
-        <th>{{ field.label }}</th>
+        <th>{{ field.label }} {{ field.errors }}</th>
         <th>{{ field }}</th>
     </tr>
 {% endif %}

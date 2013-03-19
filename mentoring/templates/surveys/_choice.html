@@ -2,6 +2,11 @@
     {{ field.label_tag }}
 {% endif %}
 {{ field.errors }}
-{% for choice in field %}
-    {{ choice }}
+{% for choice in field.choices %}
+    {% if choice.textbox %}
+    <label>{{ choice.tag }} {{ choice.choice_label }} {{ choice.textbox }} {{ choice.textbox.errors }}</label>
+    {% else %}
+        {{ choice }}
+    {% endif %}
 {% endfor %}
+
