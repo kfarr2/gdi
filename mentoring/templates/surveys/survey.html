@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Welcome{% endblock %}
+
+{% block content %}
+<form method="post" action="">
+    {% csrf_token %}
+    {% for field in form %}
+        {% if field.question.type == Question.HEADING %}
+            {% include 'surveys/_heading.html' %}
+        {% elif field.question.type == Question.CHECKBOX %}
+            {% include 'surveys/_choice.html' %}
+        {% elif field.question.type == Question.RADIO %}
+            {% include 'surveys/_choice.html' %}
+        {% elif field.question.type == Question.SELECT %}
+            {% include 'surveys/_field.html' %}
+        {% elif field.question.type == Question.LIKERT %}
+            {% include 'surveys/_likert.html' %}
+        {% elif field.question.type == Question.TEXTAREA %}
+            {% include 'surveys/_field.html' %}
+        {% elif field.question.type == Question.TEXTBOX %}
+            {% include 'surveys/_field.html' %}
+        {% else %}
+            <h1>FAIL {{ field }}</h1>
+        {% endif %}
+            
+    {% endfor %}
+    <input type="submit" name="submit" value="Submit" />
+</form>
+{% endblock %}
+

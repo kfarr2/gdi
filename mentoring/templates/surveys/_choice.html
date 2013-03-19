@@ -1,0 +1,7 @@
+{% if not field.question.hide_label %}
+    {{ field.label_tag }}
+{% endif %}
+{{ field.errors }}
+{% for choice in field %}
+    {{ choice }}
+{% endfor %}

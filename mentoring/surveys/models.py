@@ -12,6 +12,7 @@ class Survey(models.Model):
         return u'%s' % (self.name)
 
 class Question(models.Model):
+    # Question types
     TEXTBOX = 1
     CHECKBOX = 2
     RADIO = 4
@@ -19,6 +20,10 @@ class Question(models.Model):
     LIKERT = 16
     HEADING = 32
     TEXTAREA = 64
+
+    # Layouts
+    NORMAL = 1
+    TABULAR = 2 
 
     question_id = models.AutoField(primary_key=True)
     type = models.IntegerField(choices=(
@@ -32,6 +37,11 @@ class Question(models.Model):
     ))
     rank = models.IntegerField()
     body = models.TextField(blank=True)
+    hide_label = models.BooleanField(default=False, blank=True)
+    layout = models.IntegerField(choices=(
+        (NORMAL, "Normal"),
+        (TABULAR, "Tabular"),
+    ))
 
     survey = models.ForeignKey(Survey)
 

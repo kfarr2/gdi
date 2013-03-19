@@ -1,0 +1,20 @@
+{% if field.question.start_layout %}
+    <table border="1">
+{% endif %}
+
+{% if field.question.layout == Question.NORMAL %}
+    {% if not field.question.hide_label %}
+        {{ field.label_tag }}
+    {% endif %}
+    {{ field.errors }}
+    {{ field }}
+{% else %}
+    <tr>
+        <th>{{ field.label }}</th>
+        <th>{{ field }}</th>
+    </tr>
+{% endif %}
+
+{% if field.question.stop_layout %}
+    </table>
+{% endif %}
