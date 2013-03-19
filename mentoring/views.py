@@ -8,6 +8,7 @@ def home(request):
     if request.POST:
         form = SurveyForm(request.POST, survey=survey)
         if form.is_valid():
+            form.save()
             return HttpResponse("valid")
     else:
         form = SurveyForm(survey=survey)

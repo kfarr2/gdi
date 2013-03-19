@@ -1,6 +1,7 @@
 from django import forms
 from django.forms.widgets import RadioSelect
-from .models import Question, Choice
+from django.contrib.auth.models import User
+from .models import Question, Choice, Response, ResponseQuestion
 from .checkbox import CheckboxSelectMultiple
 
 class SurveyForm(forms.Form):
@@ -22,7 +23,8 @@ class SurveyForm(forms.Form):
                 choices = item.queryset.all()
                 for c in choices:
                     if c.has_textbox:
-                        self.fields['subquestion_%d' % c.pk] = forms.CharField(min_length=0, max_length=255)
+                        field = forms.CharField(required=False, min_length=0, max_length=255)
+                        self.fields['subquestion_%d' % c.pk] = field
 
         # figure out which form item will start/close a new layout.
         # This is helpful because in a template, we need to create the opening
@@ -105,6 +107,40 @@ class SurveyForm(forms.Form):
             item = forms.CharField(min_length=0, max_length=5000, label=question.body, widget=forms.Textarea)
 
         return item
+
+    def save(self):
+        cleaned = self.cleaned_data
+        response = Response()
+        response.user = User.objects.get(username='root')
+        response.survey = self.survey
+        response.save()
+
+        for k, field in self.fields.items():
+            # ignore non question fields
+            if not k.startswith("question_"): continue
+            # ignore headings
+            if field.question.type == Question.HEADING: continue
+
+            if hasattr(field, 'queryset'):
+                if field.question.type != Question.CHECKBOX:
+                    choices = [cleaned[k]]
+                else:
+                    choices = cleaned[k]
+
+                for choice in choices:
+                    rq = ResponseQuestion()
+                    rq.response = response
+                    rq.question = field.question
+                    rq.choice = choice
+                    rq.value = choice.value 
+                    rq.save()
+            else:
+                rq = ResponseQuestion()
+                rq.response = response
+                rq.question = field.question
+                rq.value = cleaned[k]
+                rq.save()
+
 
 class BlankWidget(forms.widgets.Widget):
     def render(self, name, value, attrs=None):
