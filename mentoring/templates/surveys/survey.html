@@ -3,6 +3,7 @@
 {% block page_title %}Welcome{% endblock %}
 
 {% block content %}
+<div class="survey">
 <form method="post" action="">
     {% csrf_token %}
     {% for field in form.questionFields %}
@@ -25,7 +26,16 @@
         {% endif %}
             
     {% endfor %}
-    <input type="submit" name="submit" value="Submit" />
+    <input type="submit" name="submit" value="Submit" class="submit" />
 </form>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+    $('.likert-option').click(function(e){
+        var input = $(this).find('input');
+        input.prop("checked", true);
+    });
+});
+</script>
 {% endblock %}
 

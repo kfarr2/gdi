@@ -47,10 +47,10 @@ class Question(models.Model):
 
     class Meta:
         db_table = 'question'
-        ordering = ['rank']
+        ordering = ['survey__pk', 'rank']
 
     def __unicode__(self):
-        return u'%d: %s' % (self.question_id, self.body)
+        return u'%d: %s %s' % (self.question_id, self.survey.name, self.body)
 
 class Choice(models.Model):
     choice_id = models.AutoField(primary_key=True)

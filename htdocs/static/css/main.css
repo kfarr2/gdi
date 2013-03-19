@@ -2,3 +2,42 @@ body { background-color:#efefef; }
 label {
     display:block;
 }
+
+textarea {
+    display:block;
+}
+
+.submit {
+    display:block;
+}
+
+
+#content {
+    background-color:#fff;
+    padding:20px;
+}
+
+.survey {
+
+}
+
+.survey th {
+    text-align:left;
+}
+
+.survey h2 {
+    margin-bottom:10px;
+}
+
+.likert thead th {
+    text-align:center;
+}
+
+.likert tbody td {
+    text-align:center;
+    width:50px;
+}
+
+.likert tbody td:hover {
+    background-color:#333;
+}

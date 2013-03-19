@@ -1,14 +1,14 @@
 {% if field.question.start_layout %}
-    <table border="1">
+    <table class="likert">
         <thead>
             <tr>
                 <td>&nbsp;</td>
                 {% for choice in field %}
-                    <td>{{ choice.choice_label }}</td>
+                    <th>{{ choice.choice_label }}</th>
                 {% endfor %}
             </tr>
         </thead>
-
+        <tbody>
 {% endif %}
 
 {% if field.question.layout == Question.NORMAL %}
@@ -21,11 +21,12 @@
     <tr>
         <th>{{ field.label }}</th>
         {% for choice in field %}
-            <td>{{ choice.tag }}</td>
+            <td class="likert-option">{{ choice.tag }}</td>
         {% endfor %}
     </tr>
 {% endif %}
 
 {% if field.question.stop_layout %}
+        </tbody>
     </table>
 {% endif %}

@@ -3,12 +3,14 @@
     <head>
         <title>{% block page_title %}Default Title{% endblock %}</title>
         <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/main.css">
+        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}js/main.js"></script>
     </head>
     <body>
         {% block body %}
             <div id="header">
                 {% block header %}
+                    <img src="http://www.pdx.edu/sites/www.pdx.edu.syndication/files/psulogo_horiz_std.gif" />
                     <h1>{% block header_title %}{% endblock %}</h1>
                 {% endblock %}
             </div>
