@@ -1,10 +1,11 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
+from .surveys.models import Survey
+from .surveys.forms import SurveyForm
 
 def home(request):
-    user_agent = request.META.get("HTTP_USER_AGENT", None)
-    ip = request.META.get('REMOTE_ADDR', None)
-    return render(request, 'home.html', {
-        'user_agent': user_agent,
-        'ip': ip,
+    survey = Survey.objects.get(pk=1)
+    form = SurveyForm(survey=survey)
+    return render(request, 'survey.html', {
+        'form': form,
     })
