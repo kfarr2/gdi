@@ -13,6 +13,8 @@ class SurveyForm(forms.Form):
         # add all the fields for each question
         for q in questions:
             item = self.questionToFormField(q)
+            # associate the DB question with the form question so we can access
+            # the DB question later
             item.question = q
             self.fields['question_%d' % q.pk] = item
 
@@ -53,7 +55,7 @@ class SurveyForm(forms.Form):
                 item.question = self.fields[k].question
 
                 # because CHECKBOX and RADIO choices can have an extra field
-                # associated with it (for example, an "Option" option would
+                # associated with it (for example, an "Other" option would
                 # have a textbox where the user would fill something in)
                 # we need to tack on the "subquestion" in a convient place, so
                 # it is easily rendered in the template
@@ -102,7 +104,7 @@ class SurveyForm(forms.Form):
             )
             item = forms.TypedChoiceField(label=question.body, choices=choices, widget=RadioSelect)
         elif question.type == Question.HEADING:
-            item = HeadingField(label=question.body, required=False, widget=BlankWidget)
+            item = HeadingField(label=question.body, required=False)
         elif question.type == Question.TEXTAREA:
             item = forms.CharField(min_length=0, max_length=5000, required=False, label=question.body, widget=forms.Textarea)
 
@@ -115,14 +117,22 @@ class SurveyForm(forms.Form):
         response.survey = self.survey
         response.save()
 
+        # create all the ResponseQuestion objects
         for k, field in self.fields.items():
             # ignore non question fields
             if not k.startswith("question_"): continue
             # ignore headings
             if field.question.type == Question.HEADING: continue
 
+            # for questions with a relationship (which is determined if the
+            # field has a querset attribute), we need to add the foreign key to
+            # the ResponseQuestion
             if hasattr(field, 'queryset'):
                 if field.question.type != Question.CHECKBOX:
+                    # RADIO and SELECT questions only have one choice selected
+                    # by the user. But to make this code more generic, we
+                    # package that into a list, so we can use a for loop to
+                    # create the QuestionResponse objects
                     choices = [cleaned[k]]
                 else:
                     choices = cleaned[k]
@@ -135,6 +145,8 @@ class SurveyForm(forms.Form):
                     rq.value = choice.value 
                     rq.save()
             else:
+                # if the field doesn't have a queryset attribute, just save the
+                # field's value. No foreign key needed
                 rq = ResponseQuestion()
                 rq.response = response
                 rq.question = field.question
@@ -143,10 +155,12 @@ class SurveyForm(forms.Form):
 
 
 class BlankWidget(forms.widgets.Widget):
+    """Used as the wiget for HeadingFields, since nothing needs to be rendered"""
     def render(self, name, value, attrs=None):
         return u''
 
 class HeadingField(forms.Field):
+    widget = BlankWidget
     def __init__(self, *args, **kwargs):
         super(HeadingField, self).__init__(*args, **kwargs)
 
