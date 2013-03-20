@@ -11,8 +11,17 @@ textarea {
     display:block;
 }
 
+.left {
+    text-align:left !important;
+}
+
 .submit {
     display:block;
+}
+
+.errorlist {
+    color:#ff0000;
+    margin-top:0;
 }
 
 .clear {
@@ -72,6 +81,6 @@ textarea {
     width:50px;
 }
 
-.likert tbody td:hover {
-    background-color:#333;
+.likert tbody td.likert-option:hover {
+    background-color:#999;
 }

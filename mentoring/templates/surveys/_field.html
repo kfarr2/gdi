@@ -10,9 +10,15 @@
     {{ field }}
 {% else %}
     <tr>
-        <th>{{ field.label }} {{ field.errors }}</th>
+        <th>{{ field.label }}</th>
         <th>{{ field }}</th>
     </tr>
+    {% if field.errors %}
+        <tr>
+            <td class="left" colspan="2">{{ field.errors }}</td>
+            <td>&nbsp;</td>
+        </tr>
+    {% endif %}
 {% endif %}
 
 {% if field.question.stop_layout %}

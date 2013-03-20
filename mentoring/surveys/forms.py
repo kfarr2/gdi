@@ -90,7 +90,7 @@ class SurveyForm(forms.Form):
             item = forms.ModelChoiceField(
                 queryset=Choice.objects.filter(question=question),
                 label=question.body,
-                empty_label=None,
+                empty_label="",
             )
         elif question.type == Question.LIKERT:
             choices = (
@@ -104,7 +104,7 @@ class SurveyForm(forms.Form):
         elif question.type == Question.HEADING:
             item = HeadingField(label=question.body, required=False, widget=BlankWidget)
         elif question.type == Question.TEXTAREA:
-            item = forms.CharField(min_length=0, max_length=5000, label=question.body, widget=forms.Textarea)
+            item = forms.CharField(min_length=0, max_length=5000, required=False, label=question.body, widget=forms.Textarea)
 
         return item
 
