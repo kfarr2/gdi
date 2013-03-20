@@ -3,7 +3,7 @@
 {% endif %}
 
 {% if field.question.layout == Question.NORMAL %}
-    {{ field.question.pk }}
+    {% if debug %}{{ field.question.pk }}{% endif %}
     {% if not field.question.hide_label %}
         {{ field.label_tag }}
     {% endif %}
