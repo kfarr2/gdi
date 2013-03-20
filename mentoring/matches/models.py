@@ -1,17 +1,55 @@
 from django.db import models
-from django.db.models import Q
-from mentoring.surveys.models import Question
-from mentoring.surveys.models import ResponseQuestion
+from django.contrib.auth.models import User
+from mentoring.surveys.models import ResponseQuestion, Question, Response
 
 MENTOR_SURVEY_PK = 1
 MENTEE_SURVEY_PK = 2
 
-class ScoreExpression(models.Model):
-    score_expression_id = models.AutoField(primary_key=True)
-    expression = models.TextField()
+class Match(models.Model):
+    match_id = models.AutoField(primary_key=True)
+    mentor = models.ForeignKey(User, related_name="+")
+    mentee = models.ForeignKey(User, related_name="+")
+    matched_on = models.DateTimeField(auto_now_add=True)
+    notified_on = models.DateTimeField(default=None, blank=True)
 
-    class Meta:
-        db_table = 'score_expression'
+class Mentor(object):
+    def __init__(self, response):
+        self.response = response
+        self.number_of_mentees = 0
+
+class Mentee(object):
+    def __init__(self, response):
+        self.response = response
+
+    def scoreWith(self, mentor):
+        q = merge(self.response, mentor.response)
+        return score(q)
+
+    def findSuitors(self, mentors):
+        suitors = []
+        for mentor in mentors:
+            s = self.scoreWith(mentor)
+            suitors.append((mentor, s))
+        suitors.sort(key=lambda pair: (-pair[1], pair[0].number_of_mentees))
+
+        return suitors[0:3]
+
+def getMentorResponses():
+    return list(getResponses(MENTOR_SURVEY_PK))
+
+def getMenteeRespones():
+    return list(getResponses(MENTEE_SURVEY_PK))
+
+def getResponses(survey_id):
+    rows = Response.objects.raw("""
+        SELECT * FROM response
+        INNER JOIN (
+            SELECT MAX(response_id) AS response_id FROM response 
+            WHERE survey_id = %s
+            GROUP BY user_id
+        ) k USING(response_id)
+    """, (survey_id,))
+    return rows
 
 def merge(response_a, response_b):
     rows = ResponseQuestion.objects.raw("""
@@ -54,10 +92,10 @@ def score(q):
 
     if mentee_pref == mentor_pref == "within" and have_same_field_of_study:
         # both have same field of study, and want that
-        score += 1
+        score += 2 # extra point since they both agree
     elif mentee_pref == mentor_pref == "outside" and not have_same_field_of_study:
         # both want outside field of study, and don't share the same field of study
-        score += 1
+        score += 2 # extra point for agreement
     elif mentee_pref == mentor_pref == "-1":
         # both don't care
         score += 1
@@ -77,9 +115,9 @@ def score(q):
     mentor_gender = q[13].value
 
     if mentee_pref == mentor_pref == mentee_gender == mentor_gender == "male":
-        score += 1
+        score += 2 # extra point for mutual agreement
     elif mentee_pref == mentor_pref == mentee_gender == mentor_gender == "female":
-        score += 1
+        score += 2 # extra point for mutual agreement
     elif mentee_pref == mentor_pref == "-1":
         score += 1
     elif set([mentee_pref, mentor_pref]) == set(["-1", "male"]) and mentee_gender == mentor_gender == "male":
@@ -100,6 +138,7 @@ def score(q):
     for q_id in want_to_be_mentored_in:
         q_id = int(q_id)
         mentor_skill_level = int(q[q_id].value)
+        # if the mentor rates himself 3 or above on the likert, it is a good match
         if mentor_skill_level >= 3:
             score += 1
 
@@ -107,7 +146,10 @@ def score(q):
     mentee_interests = set(q[30].values)
     mentor_interests = set(q[57].values)
     if (mentee_interests & mentor_interests) != set():
-        # if they have at least one thing in common
+        # if they have at least one thing in common, give a point for that.
+        # We don't give a point for each interest, because this field seems
+        # less important to me than the other ones, and shouldn't affect the
+        # results too much
         score += 1
 
     return score
