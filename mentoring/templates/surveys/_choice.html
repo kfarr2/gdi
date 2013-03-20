@@ -2,6 +2,7 @@
     {{ field.label_tag }}
 {% endif %}
 {{ field.errors }}
+{% if debug %}{{ field.question.pk }}{% endif %}
 {% for choice in field.choices %}
     {% if choice.textbox %}
     <label>{{ choice.tag }} {{ choice.choice_label }} {{ choice.textbox }} {{ choice.textbox.errors }}</label>

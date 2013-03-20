@@ -2,7 +2,12 @@
  * dark green: 566E10;
  * light green: 8B9822
  */
-body { background-color:#efefef; }
+body { 
+    background-color:#F2F3EE; 
+    margin:0;
+    padding:0;
+}
+
 label {
     display:block;
 }
@@ -27,6 +32,41 @@ textarea {
 .clear {
     clear:both;
 }
+
+#header {
+    background: #141c00 no-repeat center top;
+    background-image:url("/static/img/header-1.jpg");
+    padding:10px;
+    height:75px;
+}
+
+#header h1 {
+    margin-bottom:0;
+    padding-bottom:0;
+    float:right;
+    margin-right:30px;
+    color:#fff;
+    font-size:18px;
+}
+
+#header img {
+    padding-top:20px;
+}
+
+#header-inner, #content-inner {
+    width:800px;
+    margin:auto;
+}
+
+#content {
+    background-color:#fff;
+    margin:auto;
+}
+
+#content-inner {
+    padding:20px;
+}
+
 
 .ment-button {
     background-color:#8B9822;
@@ -55,11 +95,6 @@ textarea {
     margin-right:100px;
 }
 
-#content {
-    background-color:#fff;
-    padding:20px;
-}
-
 .survey {
 
 }
@@ -76,7 +111,7 @@ textarea {
     text-align:center;
 }
 
-.likert tbody td {
+.likert tbody td.likert-option {
     text-align:center;
     width:50px;
 }

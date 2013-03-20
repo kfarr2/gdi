@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, include, url
 import views
 import surveys.views
+import matches.views
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -13,6 +14,9 @@ urlpatterns = patterns('',
     url(r'^surveys/mentor/?$', surveys.views.survey, {"survey_id": 1}, name='surveys-mentor'),
     url(r'^surveys/mentee/?$', surveys.views.survey, {"survey_id": 2}, name='surveys-mentee'),
     url(r'^surveys/done/?$', surveys.views.done, name='surveys-done'),
+
+    # matches
+    url(r'^matches/match/?$', matches.views.match, name='matches-match'),
 
     # auth
     url(r'^accounts/login/$', 'django_cas.views.login', name='accounts-login'),

@@ -3,6 +3,7 @@
 {% endif %}
 
 {% if field.question.layout == Question.NORMAL %}
+    {{ field.question.pk }}
     {% if not field.question.hide_label %}
         {{ field.label_tag }}
     {% endif %}
@@ -10,8 +11,8 @@
     {{ field }}
 {% else %}
     <tr>
-        <th>{{ field.label }}</th>
-        <th>{{ field }}</th>
+        <td>{{ field.label }} {% if debug %}{{ field.question.pk }}{% endif %}</th>
+        <td>{{ field }}</th>
     </tr>
     {% if field.errors %}
         <tr>

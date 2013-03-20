@@ -88,11 +88,3 @@ class ResponseQuestion(models.Model):
 
     class Meta:
         db_table = 'response_question'
-
-class QuestionMatch(models.Model):
-    question_match_id = models.AutoField(primary_key=True)
-    question_a = models.ForeignKey(Question, related_name="+")
-    question_b = models.ForeignKey(Question, related_name="+")
-
-    class Meta:
-        db_table = 'question_match'

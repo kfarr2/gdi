@@ -10,13 +10,17 @@
         {% block body %}
             <div id="header">
                 {% block header %}
-                    <img src="http://www.pdx.edu/sites/www.pdx.edu.syndication/files/psulogo_horiz_std.gif" />
-                    <h1>{% block header_title %}{% endblock %}</h1>
+                    <div id="header-inner">
+                        <img src="http://www.pdx.edu/sites/all/themes/pdx_primary/logo.png" />
+                        <h1>{% block header_title %}Global Diversity and Inclusion{% endblock %}</h1>
+                    </div>
                 {% endblock %}
             </div>
 
             <div id="content">
+                <div id="content-inner">
                 {% block content %}{% endblock %}
+                </div>
             </div>
 
             <div id="footer">

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Welcome{% endblock %}
+
+{% block content %}
+<table>
+    <thead>
+        <tr>
+            <td>&nbsp;</td>
+            {% for mentor in mentors %}
+                <td>{{ mentor.pk }}</td>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in results %}
+            <tr>
+                <td>{{ row.0.mentee.pk }}</td>
+                {% for col in row %}
+                    <td>{{ col.score }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
