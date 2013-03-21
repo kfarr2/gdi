@@ -153,6 +153,8 @@ class SurveyForm(forms.Form):
                 rq.value = cleaned[k]
                 rq.save()
 
+        return response
+
 
 class BlankWidget(forms.widgets.Widget):
     """Used as the wiget for HeadingFields, since nothing needs to be rendered"""

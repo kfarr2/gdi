@@ -5,21 +5,61 @@ from mentoring.surveys.models import ResponseQuestion, Question, Response
 MENTOR_SURVEY_PK = 1
 MENTEE_SURVEY_PK = 2
 
-class Match(models.Model):
-    match_id = models.AutoField(primary_key=True)
-    mentor = models.ForeignKey(User, related_name="+")
-    mentee = models.ForeignKey(User, related_name="+")
-    matched_on = models.DateTimeField(auto_now_add=True)
-    notified_on = models.DateTimeField(default=None, blank=True)
+class MentorManager(models.Manager):
+    def get_queryset(self):
+        return super(MentorManager, self).get_queryset().filter(is_deleted=False)
 
-class Mentor(object):
-    def __init__(self, response):
-        self.response = response
-        self.number_of_mentees = 0
+    def withMenteeCount(self):
+        return Mentor.objects.raw("""
+            SELECT 
+                mentor.*, COUNT(`match`.mentee_id) AS number_of_mentees
+            FROM
+                mentor
+                    LEFT JOIN
+                `match` USING (mentor_id)
+                    LEFT JOIN
+                mentee ON mentee.mentee_id = `match`.mentee_id
+                    AND mentee.is_deleted = 0
+            WHERE
+                mentor.is_deleted = 0
+            GROUP BY mentor_id
+        """)
 
-class Mentee(object):
-    def __init__(self, response):
-        self.response = response
+class Mentor(models.Model):
+    mentor_id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, related_name="+")
+    response = models.ForeignKey(Response)
+    is_deleted = models.BooleanField(default=False, blank=True)
+
+    objects = MentorManager()
+
+    class Meta:
+        db_table = "mentor"
+
+class MenteeManager(models.Manager):
+    def unmatched(self):
+        return Mentee.objects.raw("""
+            SELECT 
+                * 
+            FROM 
+                `match` 
+            RIGHT JOIN 
+                mentee 
+            USING(mentee_id) 
+            WHERE 
+                match_id IS NULL AND 
+                (`match`.is_deleted IS NULL OR `match`.is_deleted = 0) AND
+                mentee.is_deleted = 0
+        """)
+
+class Mentee(models.Model):
+    mentee_id = models.AutoField(primary_key=True)
+    is_deleted = models.BooleanField(default=False, blank=True)
+
+    user = models.ForeignKey(User, related_name="+")
+    response = models.ForeignKey(Response)
+
+    objects = MenteeManager()
 
     def scoreWith(self, mentor):
         q = merge(self.response, mentor.response)
@@ -32,7 +72,27 @@ class Mentee(object):
             suitors.append((mentor, s))
         suitors.sort(key=lambda pair: (-pair[1], pair[0].number_of_mentees))
 
-        return suitors[0:3]
+        return [s[0] for s in suitors[0:3]]
+
+    class Meta:
+        db_table = "mentee"
+
+class MatchManager(models.Manager):
+    def get_queryset(self):
+        return super(MatchManager, self).get_queryset().filter(is_deleted=False)
+
+class Match(models.Model):
+    match_id = models.AutoField(primary_key=True)
+    mentor = models.ForeignKey(Mentor, related_name="+")
+    mentee = models.ForeignKey(Mentee, related_name="+")
+    matched_on = models.DateTimeField(auto_now_add=True)
+    notified_on = models.DateTimeField(null=True, default=None, blank=True)
+    is_deleted = models.BooleanField(default=False, blank=True)
+
+    objects = MatchManager()
+
+    class Meta:
+        db_table = "match"
 
 def getMentorResponses():
     return list(getResponses(MENTOR_SURVEY_PK))

@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from mentoring.surveys.models import Survey, Question, Response
 from mentoring.surveys.forms import SurveyForm
-from .models import merge, score, getMentorResponses, getMenteeRespones
+from .models import merge, score, getMentorResponses, getMenteeRespones, Mentee, Mentor, Match
 
 def match(request):
     mentors = getMentorResponses()
@@ -31,16 +31,34 @@ def match(request):
                 "mentee": mentee,
                 "score": s
             })
-            mentor.first_name = q[2].value
-            mentor.last_name = q[3].value
 
-        mentee.first_name = q[34].value
-        mentee.last_name = q[35].value
+    unmatched_mentees = list(Mentee.objects.unmatched())
+    suitors = list(Mentor.objects.withMenteeCount())
+    for mentee in unmatched_mentees:
+        mentee.suitors = mentee.findSuitors(suitors)
 
-    
+    matches = Match.objects.all()
 
     return render(request, "matches.html", {
         "results": results,
         "mentees": mentees,
         "mentors": mentors,
+        "unmatched_mentees": unmatched_mentees,
+        "matches": matches,
     })
+
+def marry(request):
+    mentor_id = request.POST.get("mentor_id")
+    mentee_id = request.POST.get("mentee_id")
+
+    m = Match()
+    m.mentor = Mentor.objects.get(pk=mentor_id)
+    m.mentee = Mentee.objects.get(pk=mentee_id)
+    m.save()
+    return HttpResponseRedirect(reverse("matches-match"))
+
+def divorce(request):
+    mentor_id = request.POST.get("mentor_id")
+    mentee_id = request.POST.get("mentee_id")
+    Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id).delete()
+    return HttpResponseRedirect(reverse("matches-match"))

@@ -11,12 +11,14 @@ urlpatterns = patterns('',
     url(r'^$', views.home),
 
     # surveys
-    url(r'^surveys/mentor/?$', surveys.views.survey, {"survey_id": 1}, name='surveys-mentor'),
-    url(r'^surveys/mentee/?$', surveys.views.survey, {"survey_id": 2}, name='surveys-mentee'),
+    url(r'^surveys/mentor/?$', surveys.views.mentor, name='surveys-mentor'),
+    url(r'^surveys/mentee/?$', surveys.views.mentee, name='surveys-mentee'),
     url(r'^surveys/done/?$', surveys.views.done, name='surveys-done'),
 
     # matches
     url(r'^matches/match/?$', matches.views.match, name='matches-match'),
+    url(r'^matches/marry/?$', matches.views.marry, name='matches-marry'),
+    url(r'^matches/divorce/?$', matches.views.divorce, name='matches-divorce'),
 
     # auth
     url(r'^accounts/login/$', 'django_cas.views.login', name='accounts-login'),

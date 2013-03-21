@@ -26,6 +26,11 @@
             <div id="footer">
                 {% block footer %}
                 <hr />
+                <ol>
+                {% for q in sql_queries %}
+                    <li><pre>{{ q.sql }}</pre></li>
+                {% endfor %}
+                </ol>
                 {% endblock %}
             </div>
         {% endblock %}

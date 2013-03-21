@@ -3,19 +3,20 @@
 {% block page_title %}Welcome{% endblock %}
 
 {% block content %}
+<h2>Scores</h2>
 <table>
     <thead>
         <tr>
             <td>&nbsp;</td>
             {% for mentor in mentors %}
-                <td>{{ mentor.first_name }} {{ mentor.last_name }}</td>
+                <td>{{ mentor.user.username }}</td>
             {% endfor %}
         </tr>
     </thead>
     <tbody>
         {% for row in results %}
             <tr>
-                <td>{{ row.0.mentee.first_name }} {{ row.0.mentee.last_name }}</td>
+                <td>{{ row.0.mentee.user.username }}</td>
                 {% for col in row %}
                     <td>{{ col.score }}</td>
                 {% endfor %}
@@ -23,5 +24,42 @@
         {% endfor %}
     </tbody>
 </table>
+
+<h2>Potential Matches</h2>
+<ul>
+{% for mentee in unmatched_mentees %}
+    <li>{{ mentee.user.username }} {{ mentee.pk }}
+        <ul>
+        {% for suitor in mentee.suitors %}
+            <li>
+                {{ suitor.user.username }} {{ suitor.pk }}
+                <form method="post" action="{% url 'matches-marry' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="mentee_id" value="{{ mentee.pk }}" />
+                    <input type="hidden" name="mentor_id" value="{{ suitor.pk }}" />
+                    <input type="submit" name="submit" value="Marry" />
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
+    </li>
+{% endfor %}
+</ul>
+
+<h2>Matches</h2>
+<ul>
+{% for match in matches %}
+    <li>
+        {{ match.mentor.user.username }} <=> {{ match.mentee.user.username }}
+        <form method="post" action="{% url 'matches-divorce' %}">
+            {% csrf_token %}
+            <input type="hidden" name="mentee_id" value="{{ match.mentee.pk }}" />
+            <input type="hidden" name="mentor_id" value="{{ match.mentor.pk }}" />
+            <input type="submit" name="submit" value="Divorce" />
+        </form>
+    </li>
+{% endfor %}
+</ul>
+
 {% endblock %}
 
