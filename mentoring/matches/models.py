@@ -80,6 +80,26 @@ class Mentee(models.Model):
 class MatchManager(models.Manager):
     def get_queryset(self):
         return super(MatchManager, self).get_queryset().filter(is_deleted=False)
+    
+    def byMentor(self):
+        rows = Match.objects.raw("""
+            SELECT 
+                * 
+            FROM 
+                match
+            INNER JOIN 
+                mentee 
+            ON 
+                match.mentee_id = mentee.mentee_id
+            INNER JOIN 
+                mentor 
+            ON 
+                match.mentor_id = mentor.mentor_id
+            WHERE 
+                mentee.is_deleted = 0 AND 
+                mentor.is_deleted = 0 AND 
+                match.is_deleted = 0
+        """)
 
 class Match(models.Model):
     match_id = models.AutoField(primary_key=True)

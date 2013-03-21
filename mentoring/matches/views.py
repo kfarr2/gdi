@@ -37,7 +37,7 @@ def match(request):
     for mentee in unmatched_mentees:
         mentee.suitors = mentee.findSuitors(suitors)
 
-    matches = Match.objects.all()
+    matches = Match.objects.byMentor()
 
     return render(request, "matches.html", {
         "results": results,

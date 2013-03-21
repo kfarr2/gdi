@@ -33,6 +33,17 @@ textarea {
     clear:both;
 }
 
+.form-button {
+    display:inline;
+}
+
+.form-button input {
+    background:none;
+    border:none;
+    font:inherit;
+    text-decoration:underline;
+}
+
 #header {
     background: #141c00 no-repeat center top;
     background-image:url("/static/img/header-1.jpg");

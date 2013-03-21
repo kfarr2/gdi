@@ -33,7 +33,7 @@
         {% for suitor in mentee.suitors %}
             <li>
                 {{ suitor.user.username }} {{ suitor.pk }}
-                <form method="post" action="{% url 'matches-marry' %}">
+                <form method="post" action="{% url 'matches-marry' %}" class="form-button">
                     {% csrf_token %}
                     <input type="hidden" name="mentee_id" value="{{ mentee.pk }}" />
                     <input type="hidden" name="mentor_id" value="{{ suitor.pk }}" />
@@ -51,7 +51,7 @@
 {% for match in matches %}
     <li>
         {{ match.mentor.user.username }} <=> {{ match.mentee.user.username }}
-        <form method="post" action="{% url 'matches-divorce' %}">
+        <form method="post" action="{% url 'matches-divorce' %}" class="form-button">
             {% csrf_token %}
             <input type="hidden" name="mentee_id" value="{{ match.mentee.pk }}" />
             <input type="hidden" name="mentor_id" value="{{ match.mentor.pk }}" />
