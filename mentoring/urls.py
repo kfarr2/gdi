@@ -22,6 +22,9 @@ urlpatterns = patterns('',
     url(r'^matches/divorce/?$', matches.views.divorce, name='matches-divorce'),
     url(r'^matches/engage/?$', matches.views.engage, name='matches-engage'),
     url(r'^matches/breakup/?$', matches.views.breakup, name='matches-breakup'),
+    # mentors and mentee administration
+    url(r'^mentors/delete/?$', matches.views.removeMentor, name='mentors-delete'),
+    url(r'^mentees/delete/?$', matches.views.removeMentee, name='mentees-delete'),
 
     # auth
     url(r'^accounts/login/$', 'django_cas.views.login', name='accounts-login'),

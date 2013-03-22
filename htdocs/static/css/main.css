@@ -44,6 +44,15 @@ textarea {
     text-decoration:underline;
 }
 
+.panel-view {
+    width:100%;
+}
+
+.panel-view td {
+    vertical-align:top;
+    width:33%;
+}
+
 #header {
     background: #141c00 no-repeat center top;
     background-image:url("/static/img/header-1.jpg");

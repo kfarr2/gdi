@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -41,44 +40,47 @@ def match(request):
     for mentee in unmatched_mentees:
         mentee.suitors = mentee.findSuitors(suitors)
 
-    matches = Match.objects.byMentor()
+    engagements = Match.objects.byMentor(married=False)
+    marriages = Match.objects.byMentor(married=True)
 
     return render(request, "matches.html", {
         "results": results,
         "mentees": mentees,
         "mentors": mentors,
         "unmatched_mentees": unmatched_mentees,
-        "matches": matches,
+        "engagements": engagements,
+        "marriages": marriages,
     })
 
 def engage(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
-
-    m = Match()
-    m.mentor = Mentor.objects.get(pk=mentor_id)
-    m.mentee = Mentee.objects.get(pk=mentee_id)
-    m.save()
+    Match.objects.engage(mentor_id, mentee_id)
     return HttpResponseRedirect(reverse("matches-match"))
 
 def breakup(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
-    Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id).delete()
+    Match.objects.breakup(mentor_id, mentee_id)
     return HttpResponseRedirect(reverse("matches-match"))
 
 def marry(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
-
-    m = Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id)
-    m.notified_on = datetime.now()
-    m.save()
+    Match.objects.marry(mentor_id, mentee_id)
     return HttpResponseRedirect(reverse("matches-match"))
 
 def divorce(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
-    Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id).delete()
+    Match.objects.divorce(mentor_id, mentee_id)
+    return HttpResponseRedirect(reverse("matches-match"))
+
+def removeMentor(request):
+    Mentor.objects.get(pk=request.POST.get("mentor_id")).delete()
+    return HttpResponseRedirect(reverse("matches-match"))
+
+def removeMentee(request):
+    Mentee.objects.get(pk=request.POST.get("mentee_id")).delete()
     return HttpResponseRedirect(reverse("matches-match"))
 

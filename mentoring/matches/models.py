@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
 from mentoring.surveys.models import ResponseQuestion, Question, Response
@@ -33,6 +34,12 @@ class Mentor(models.Model):
 
     objects = MentorManager()
 
+    def delete(self):
+        user = self.user
+        ResponseQuestion.objects.filter(response__user=user, response__survey_id=MENTOR_SURVEY_PK).delete()
+        Match.objects.filter(mentor=self).delete()
+        super(Mentor, self).delete()
+
     class Meta:
         db_table = "mentor"
 
@@ -61,6 +68,12 @@ class Mentee(models.Model):
 
     objects = MenteeManager()
 
+    def delete(self):
+        user = self.user
+        ResponseQuestion.objects.filter(response__user=user, response__survey_id=MENTEE_SURVEY_PK).delete()
+        Match.objects.filter(mentee=self).delete()
+        super(Mentee, self).delete()
+
     def scoreWith(self, mentor):
         q = merge(self.response, mentor.response)
         return score(q)
@@ -81,7 +94,12 @@ class MatchManager(models.Manager):
     def get_queryset(self):
         return super(MatchManager, self).get_queryset().filter(is_deleted=False)
     
-    def byMentor(self):
+    def byMentor(self, married=True):
+        if married:
+            where_clause = " match.notified_on IS NOT NULL"
+        else:
+            where_clause = " match.notified_on IS NULL"
+
         rows = Match.objects.raw("""
             SELECT 
                 * 
@@ -98,9 +116,26 @@ class MatchManager(models.Manager):
             WHERE 
                 mentee.is_deleted = 0 AND 
                 mentor.is_deleted = 0 AND 
-                match.is_deleted = 0
-        """)
+                match.is_deleted = 0 AND
+                """ + where_clause)
         return rows
+
+    def marry(self, mentor_id, mentee_id):
+        m = Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id)
+        m.notified_on = datetime.now()
+        m.save()
+
+    def divorce(self, mentor_id, mentee_id):
+        Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id).delete()
+
+    def engage(self, mentor_id, mentee_id):
+        m = Match()
+        m.mentor = Mentor.objects.get(pk=mentor_id)
+        m.mentee = Mentee.objects.get(pk=mentee_id)
+        m.save()
+
+    def breakup(self, mentor_id, mentee_id):
+        Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id).delete()
 
 class Match(models.Model):
     match_id = models.AutoField(primary_key=True)
