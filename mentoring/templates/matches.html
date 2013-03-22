@@ -1,8 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'admin.html' %}
 
 {% block page_title %}Welcome{% endblock %}
 
 {% block content %}
+{{ block.super }}
 <h2>Scores</h2>
 <table>
     <thead>
@@ -56,22 +57,28 @@
 
 <h2>Engagements</h2>
 <ul>
-{% for match in engagements %}
+{% for mentor in engagements %}
     <li>
-        {{ match.mentor.user.username }} <=> {{ match.mentee.user.username }}
-        <form method="post" action="{% url 'matches-marry' %}" class="form-button">
-            {% csrf_token %}
-            <input type="hidden" name="mentee_id" value="{{ match.mentee.pk }}" />
-            <input type="hidden" name="mentor_id" value="{{ match.mentor.pk }}" />
-            <input type="submit" name="submit" value="Marry" />
-        </form>
+        {{ mentor.mentor_username }}
+        <ul>
+        {% for mentee in mentor.mentees %}
+            <li>{{ mentee.mentee_username }}
+                <form method="post" action="{% url 'matches-marry' %}" class="form-button">
+                    {% csrf_token %}
+                    <input type="hidden" name="mentee_id" value="{{ mentee.mentee_id }}" />
+                    <input type="hidden" name="mentor_id" value="{{ mentee.mentor_id }}" />
+                    <input type="submit" name="submit" value="Marry" />
+                </form>
 
-        <form method="post" action="{% url 'matches-breakup' %}" class="form-button">
-            {% csrf_token %}
-            <input type="hidden" name="mentee_id" value="{{ match.mentee.pk }}" />
-            <input type="hidden" name="mentor_id" value="{{ match.mentor.pk }}" />
-            <input type="submit" name="submit" value="Breakup" />
-        </form>
+                <form method="post" action="{% url 'matches-breakup' %}" class="form-button">
+                    {% csrf_token %}
+                    <input type="hidden" name="mentee_id" value="{{ mentee.mentee_id }}" />
+                    <input type="hidden" name="mentor_id" value="{{ mentee.mentor_id }}" />
+                    <input type="submit" name="submit" value="Breakup" />
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
     </li>
 {% endfor %}
 </ul>
@@ -80,45 +87,46 @@
 <td>
 <h2>Marriages</h2>
 <ul>
-{% for match in marriages %}
+{% for mentor in marriages %}
     <li>
-        {{ match.mentor.user.username }} <=> {{ match.mentee.user.username }}
-        <form method="post" action="{% url 'matches-divorce' %}" class="form-button">
-            {% csrf_token %}
-            <input type="hidden" name="mentee_id" value="{{ match.mentee.pk }}" />
-            <input type="hidden" name="mentor_id" value="{{ match.mentor.pk }}" />
-            <input type="submit" name="submit" value="Divorce" />
-        </form>
+        {{ mentor.mentor_username }}
+        <ul>
+        {% for mentee in mentor.mentees %}
+            <li>{{ mentee.mentee_username }}
+                <form method="post" action="{% url 'matches-divorce' %}" class="form-button">
+                    {% csrf_token %}
+                    <input type="hidden" name="mentee_id" value="{{ mentee.mentee_id }}" />
+                    <input type="hidden" name="mentor_id" value="{{ mentee.mentor_id }}" />
+                    <input type="submit" name="submit" value="Divorce" />
+                </form>
+
+                <form method="post" action="{% url 'matches-complete' %}" class="form-button">
+                    {% csrf_token %}
+                    <input type="hidden" name="mentee_id" value="{{ mentee.mentee_id }}" />
+                    <input type="hidden" name="mentor_id" value="{{ mentee.mentor_id }}" />
+                    <input type="submit" name="submit" value="Complete" />
+                </form>
+            </li>
+        {% endfor %}
+        </ul>
     </li>
 {% endfor %}
 </ul>
+
 
 </td>
 </tr>
 </table>
-
-<h2>Mentees</h2>
+<h2>Completed</h2>
 <ul>
-{% for mentee in mentees %}
-    <li>{{ mentee.user.username }}
-        <form method="post" action="{% url 'mentees-delete' %}" class="form-button">
-            {% csrf_token %}
-            <input type="hidden" name="mentee_id" value="{{ mentee.pk }}">
-            <input type="submit" name="submit" value="Remove" />
-        </form>
-    </li>
-{% endfor %}
-</ul>
-
-<h2>Mentors</h2>
-<ul>
-{% for mentor in mentors %}
-    <li>{{ mentor.user.username }}
-        <form method="post" action="{% url 'mentors-delete' %}" class="form-button">
-            {% csrf_token %}
-            <input type="hidden" name="mentor_id" value="{{ mentor.pk }}">
-            <input type="submit" name="submit" value="Remove" />
-        </form>
+{% for mentor in completed %}
+    <li>
+        {{ mentor.mentor_username }}
+        <ul>
+        {% for mentee in mentor.mentees %}
+            <li>{{ mentee.mentee_username }}</li>
+        {% endfor %}
+        </ul>
     </li>
 {% endfor %}
 </ul>

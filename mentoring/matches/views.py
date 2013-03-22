@@ -42,6 +42,7 @@ def match(request):
 
     engagements = Match.objects.byMentor(married=False)
     marriages = Match.objects.byMentor(married=True)
+    completed = Match.objects.byMentor(married=True, completed=True)
 
     return render(request, "matches.html", {
         "results": results,
@@ -50,37 +51,64 @@ def match(request):
         "unmatched_mentees": unmatched_mentees,
         "engagements": engagements,
         "marriages": marriages,
+        "completed": completed,
+    })
+
+def manage(request):
+    return render(request, 'manage.html', {
+    })
+
+def ments(request):
+    mentors = Mentor.objects.all().select_related("user")
+    mentees = Mentee.objects.all().select_related("user")
+    return render(request, 'ments.html', {
+        "mentors": mentors,
+        "mentees": mentees,
     })
 
 def engage(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.engage(mentor_id, mentee_id)
-    return HttpResponseRedirect(reverse("matches-match"))
+    return HttpResponseRedirect(reverse("manage-match"))
 
 def breakup(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.breakup(mentor_id, mentee_id)
-    return HttpResponseRedirect(reverse("matches-match"))
+    return HttpResponseRedirect(reverse("manage-match"))
 
 def marry(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.marry(mentor_id, mentee_id)
-    return HttpResponseRedirect(reverse("matches-match"))
+    return HttpResponseRedirect(reverse("manage-match"))
 
 def divorce(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.divorce(mentor_id, mentee_id)
-    return HttpResponseRedirect(reverse("matches-match"))
+    return HttpResponseRedirect(reverse("manage-match"))
 
-def removeMentor(request):
-    Mentor.objects.get(pk=request.POST.get("mentor_id")).delete()
-    return HttpResponseRedirect(reverse("matches-match"))
+def complete(request):
+    mentor_id = request.POST.get("mentor_id")
+    mentee_id = request.POST.get("mentee_id")
+    Match.objects.complete(mentor_id, mentee_id)
+    return HttpResponseRedirect(reverse("manage-match"))
 
-def removeMentee(request):
-    Mentee.objects.get(pk=request.POST.get("mentee_id")).delete()
-    return HttpResponseRedirect(reverse("matches-match"))
+def remove(request, object_name):
+    if object_name == "mentors":
+        model = Mentor
+    elif object_name == "mentees":
+        model = Mentee
+    else:
+        raise ValueError("%s is not 'mentors' or 'mentees'" % (object_name,))
 
+    if request.POST:
+        model.objects.get(pk=request.POST.get('id')).delete()
+        return HttpResponseRedirect(reverse("manage"))
+    else:
+        obj = model.objects.get(pk=request.GET['id'])
+        return render(request, "confirm.html", {
+            "object": obj,
+        })

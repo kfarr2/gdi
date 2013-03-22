@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Welcome{% endblock %}
+
+{% block content %}
+<form method="POST" action="">
+    <p>Are you sure you want to delete {{ object.user.username }} from the system?</p>
+    <input type="hidden" name="id" value="{{ object.pk }}" />
+    <a href="javascript:window.history.go(-1)">Go Back</a>
+    <br />
+    <br />
+    <br />
+    {% csrf_token %}
+    <input type="submit" name="submit" value="Yes, permanently delete this person" />
+</form>
+{% endblock %}
+

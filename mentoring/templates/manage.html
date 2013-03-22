@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Welcome{% endblock %}
+
+{% block content %}
+    <h2>Matching Administration</h2>
+    <ul>
+        <li><a href="{% url 'manage-ments' %}">View/Delete Mentors and Mentees</a></li>
+        <li><a href="{% url 'manage-match' %}">View/Add/Edit Matches</a></li>
+    </ul>
+{% endblock %}
+

@@ -17,14 +17,19 @@ urlpatterns = patterns('',
     url(r'^surveys/response/(\d+)/?$', surveys.views.response, name='surveys-response'),
 
     # matches
-    url(r'^matches/match/?$', matches.views.match, name='matches-match'),
     url(r'^matches/marry/?$', matches.views.marry, name='matches-marry'),
     url(r'^matches/divorce/?$', matches.views.divorce, name='matches-divorce'),
     url(r'^matches/engage/?$', matches.views.engage, name='matches-engage'),
     url(r'^matches/breakup/?$', matches.views.breakup, name='matches-breakup'),
+    url(r'^matches/complete/?$', matches.views.complete, name='matches-complete'),
     # mentors and mentee administration
-    url(r'^mentors/delete/?$', matches.views.removeMentor, name='mentors-delete'),
-    url(r'^mentees/delete/?$', matches.views.removeMentee, name='mentees-delete'),
+    url(r'^(mentors)/delete/?$', matches.views.remove, name='mentors-delete'),
+    url(r'^(mentees)/delete/?$', matches.views.remove, name='mentees-delete'),
+
+    # management
+    url(r'^manage/?$', matches.views.manage, name='manage'),
+    url(r'^manage/match/?$', matches.views.match, name='manage-match'),
+    url(r'^manage/ments?$', matches.views.ments, name='manage-ments'),
 
     # auth
     url(r'^accounts/login/$', 'django_cas.views.login', name='accounts-login'),

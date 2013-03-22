@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
@@ -16,11 +17,13 @@ class MentorManager(models.Manager):
                 mentor.*, COUNT(`match`.mentee_id) AS number_of_mentees
             FROM
                 mentor
-                    LEFT JOIN
+            LEFT JOIN
                 `match` USING (mentor_id)
-                    LEFT JOIN
-                mentee ON mentee.mentee_id = `match`.mentee_id
-                    AND mentee.is_deleted = 0
+            LEFT JOIN
+                mentee 
+            ON 
+                mentee.mentee_id = `match`.mentee_id AND 
+                mentee.is_deleted = 0
             WHERE
                 mentor.is_deleted = 0
             GROUP BY mentor_id
@@ -42,6 +45,7 @@ class Mentor(models.Model):
 
     class Meta:
         db_table = "mentor"
+        ordering = ['user__date_joined']
 
 class MenteeManager(models.Manager):
     def unmatched(self):
@@ -89,36 +93,63 @@ class Mentee(models.Model):
 
     class Meta:
         db_table = "mentee"
+        ordering = ['user__date_joined']
 
 class MatchManager(models.Manager):
     def get_queryset(self):
         return super(MatchManager, self).get_queryset().filter(is_deleted=False)
-    
-    def byMentor(self, married=True):
+
+    def byMentor(self, married=True, completed=False):
+        where_clause = ""
         if married:
             where_clause = " match.notified_on IS NOT NULL"
         else:
             where_clause = " match.notified_on IS NULL"
 
-        rows = Match.objects.raw("""
-            SELECT 
-                * 
-            FROM 
+        if completed:
+            where_clause += " AND match.completed_on IS NOT NULL "
+        else:
+            where_clause += " AND match.completed_on IS NULL "
+
+        rows = Mentor.objects.raw("""
+            SELECT
+                mentee.mentee_id,
+                mentor.mentor_id,
+                auth_user.username AS mentor_username,
+                auth_user2.username as mentee_username
+            FROM
                 `match`
-            INNER JOIN 
-                mentee 
-            ON 
+            INNER JOIN
+                mentee
+            ON
                 match.mentee_id = mentee.mentee_id
-            INNER JOIN 
-                mentor 
-            ON 
+            INNER JOIN
+                mentor
+            ON
                 match.mentor_id = mentor.mentor_id
-            WHERE 
-                mentee.is_deleted = 0 AND 
-                mentor.is_deleted = 0 AND 
+            INNER JOIN
+                auth_user
+            ON 
+                mentor.user_id = auth_user.id 
+            INNER JOIN 
+                auth_user auth_user2
+            ON 
+                mentee.user_id = auth_user2.id
+            WHERE
+                mentee.is_deleted = 0 AND
+                mentor.is_deleted = 0 AND
                 match.is_deleted = 0 AND
                 """ + where_clause)
-        return rows
+
+        groups = defaultdict(list)
+        for row in rows:
+            if row.mentor_id in groups:
+                groups[row.mentor_id].mentees.append(row)
+            else:
+                row.mentees = [row]
+                groups[row.mentor_id] = row
+
+        return groups.values()
 
     def marry(self, mentor_id, mentee_id):
         m = Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id)
@@ -137,12 +168,18 @@ class MatchManager(models.Manager):
     def breakup(self, mentor_id, mentee_id):
         Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id).delete()
 
+    def complete(self, mentor_id, mentee_id):
+        match = Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id)
+        match.completed_on = datetime.now()
+        match.save()
+
 class Match(models.Model):
     match_id = models.AutoField(primary_key=True)
     mentor = models.ForeignKey(Mentor, related_name="+")
     mentee = models.ForeignKey(Mentee, related_name="+")
     matched_on = models.DateTimeField(auto_now_add=True)
     notified_on = models.DateTimeField(null=True, default=None, blank=True)
+    completed_on = models.DateTimeField(null=True, default=None, blank=True)
     is_deleted = models.BooleanField(default=False, blank=True)
 
     objects = MatchManager()
