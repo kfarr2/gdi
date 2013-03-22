@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
-from .models import Survey, Question
+from .models import Survey, Question, Response
 from .forms import SurveyForm
 from mentoring.matches.models import Mentor, Mentee, MENTOR_SURVEY_PK, MENTEE_SURVEY_PK
 
@@ -78,4 +78,14 @@ def mentor(request):
 def done(request):
     return render(request, "surveys/done.html", {
 
+    })
+
+@login_required
+def response(request, response_id):
+    response = get_object_or_404(Response, pk=response_id)
+    report = response.report()
+    return render(request, "surveys/response.html", {
+        'response': response,
+        'report': report,
+        'Question': Question,
     })

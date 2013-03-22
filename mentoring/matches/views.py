@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -17,7 +18,10 @@ def match(request):
         best_score = 0
         for mentor in mentors:
             q = merge(mentee, mentor)
-            s = score(q)
+            try:
+                s = score(q)
+            except:
+                raise ValueError(mentee.pk, mentor.pk)
             if s == best_score:
                 best_mentors.append(mentor)
             elif s > best_score:
@@ -47,7 +51,7 @@ def match(request):
         "matches": matches,
     })
 
-def marry(request):
+def engage(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
 
@@ -57,8 +61,24 @@ def marry(request):
     m.save()
     return HttpResponseRedirect(reverse("matches-match"))
 
+def breakup(request):
+    mentor_id = request.POST.get("mentor_id")
+    mentee_id = request.POST.get("mentee_id")
+    Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id).delete()
+    return HttpResponseRedirect(reverse("matches-match"))
+
+def marry(request):
+    mentor_id = request.POST.get("mentor_id")
+    mentee_id = request.POST.get("mentee_id")
+
+    m = Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id)
+    m.notified_on = datetime.now()
+    m.save()
+    return HttpResponseRedirect(reverse("matches-match"))
+
 def divorce(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id).delete()
     return HttpResponseRedirect(reverse("matches-match"))
+

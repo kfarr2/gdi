@@ -86,7 +86,7 @@ class MatchManager(models.Manager):
             SELECT 
                 * 
             FROM 
-                match
+                `match`
             INNER JOIN 
                 mentee 
             ON 
@@ -100,6 +100,7 @@ class MatchManager(models.Manager):
                 mentor.is_deleted = 0 AND 
                 match.is_deleted = 0
         """)
+        return rows
 
 class Match(models.Model):
     match_id = models.AutoField(primary_key=True)
@@ -115,21 +116,14 @@ class Match(models.Model):
         db_table = "match"
 
 def getMentorResponses():
-    return list(getResponses(MENTOR_SURVEY_PK))
+    return Response.objects.raw("""
+    SELECT * FROM mentor INNER JOIN response USING(response_id) WHERE mentor.is_deleted = 0
+    """)
 
 def getMenteeRespones():
-    return list(getResponses(MENTEE_SURVEY_PK))
-
-def getResponses(survey_id):
-    rows = Response.objects.raw("""
-        SELECT * FROM response
-        INNER JOIN (
-            SELECT MAX(response_id) AS response_id FROM response 
-            WHERE survey_id = %s
-            GROUP BY user_id
-        ) k USING(response_id)
-    """, (survey_id,))
-    return rows
+    return Response.objects.raw("""
+    SELECT * FROM mentee INNER JOIN response USING(response_id) WHERE mentee.is_deleted = 0
+    """)
 
 def merge(response_a, response_b):
     rows = ResponseQuestion.objects.raw("""

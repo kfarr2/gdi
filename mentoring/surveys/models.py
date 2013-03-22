@@ -75,6 +75,35 @@ class Response(models.Model):
     user = models.ForeignKey(User)
     survey = models.ForeignKey(Survey)
 
+    def report(self):
+        rows = Question.objects.raw("""
+            SELECT
+                question.question_id,
+                question.type,
+                question.body,
+                question.hide_label,
+                question.layout,
+                response_question.value as cached_value,
+                GROUP_CONCAT(IF(choice.body IS NULL OR choice.has_textbox, response_question.value, choice.body) SEPARATOR '\n') AS choice_body,
+                choice.has_textbox
+            FROM
+                question
+            LEFT JOIN
+                response_question
+            ON
+                response_question.question_id = question.question_id AND
+                response_id = %s
+            LEFT JOIN
+                choice USING (choice_id)
+            WHERE
+                question.survey_id = (SELECT survey_id FROM response WHERE response_id = %s)
+            GROUP BY question_id
+            ORDER BY
+                question.rank,
+                choice.rank
+        """, (self.pk, self.pk))
+        return rows
+
     class Meta:
         db_table = 'response'
 

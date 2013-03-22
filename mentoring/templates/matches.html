@@ -9,14 +9,14 @@
         <tr>
             <td>&nbsp;</td>
             {% for mentor in mentors %}
-                <td>{{ mentor.user.username }}</td>
+                <td><a href="{% url "surveys-response" mentor.response_id %}">{{ mentor.user.username }}</a></td>
             {% endfor %}
         </tr>
     </thead>
     <tbody>
         {% for row in results %}
             <tr>
-                <td>{{ row.0.mentee.user.username }}</td>
+                <td><a href="{% url "surveys-response" row.0.mentee.response_id %}">{{ row.0.mentee.user.username }}</a></td>
                 {% for col in row %}
                     <td>{{ col.score }}</td>
                 {% endfor %}
@@ -33,11 +33,11 @@
         {% for suitor in mentee.suitors %}
             <li>
                 {{ suitor.user.username }} {{ suitor.pk }}
-                <form method="post" action="{% url 'matches-marry' %}" class="form-button">
+                <form method="post" action="{% url 'matches-engage' %}" class="form-button">
                     {% csrf_token %}
                     <input type="hidden" name="mentee_id" value="{{ mentee.pk }}" />
                     <input type="hidden" name="mentor_id" value="{{ suitor.pk }}" />
-                    <input type="submit" name="submit" value="Marry" />
+                    <input type="submit" name="submit" value="Engage" />
                 </form>
             </li>
         {% endfor %}
@@ -51,12 +51,28 @@
 {% for match in matches %}
     <li>
         {{ match.mentor.user.username }} <=> {{ match.mentee.user.username }}
-        <form method="post" action="{% url 'matches-divorce' %}" class="form-button">
-            {% csrf_token %}
-            <input type="hidden" name="mentee_id" value="{{ match.mentee.pk }}" />
-            <input type="hidden" name="mentor_id" value="{{ match.mentor.pk }}" />
-            <input type="submit" name="submit" value="Divorce" />
-        </form>
+        {% if match.notified_on %} <!-- the couple is married -->
+            <form method="post" action="{% url 'matches-divorce' %}" class="form-button">
+                {% csrf_token %}
+                <input type="hidden" name="mentee_id" value="{{ match.mentee.pk }}" />
+                <input type="hidden" name="mentor_id" value="{{ match.mentor.pk }}" />
+                <input type="submit" name="submit" value="Divorce" />
+            </form>
+        {% else %}
+            <form method="post" action="{% url 'matches-marry' %}" class="form-button">
+                {% csrf_token %}
+                <input type="hidden" name="mentee_id" value="{{ match.mentee.pk }}" />
+                <input type="hidden" name="mentor_id" value="{{ match.mentor.pk }}" />
+                <input type="submit" name="submit" value="Marry" />
+            </form>
+
+            <form method="post" action="{% url 'matches-breakup' %}" class="form-button">
+                {% csrf_token %}
+                <input type="hidden" name="mentee_id" value="{{ match.mentee.pk }}" />
+                <input type="hidden" name="mentor_id" value="{{ match.mentor.pk }}" />
+                <input type="submit" name="submit" value="Breakup" />
+            </form>
+        {% endif %}
     </li>
 {% endfor %}
 </ul>

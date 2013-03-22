@@ -80,6 +80,7 @@ class SurveyForm(forms.Form):
                 widget=CheckboxSelectMultiple, 
                 queryset=Choice.objects.filter(question=question),
                 label=question.body,
+                cache_choices=True,
             )
         elif question.type == Question.RADIO:
             item = forms.ModelChoiceField(
@@ -87,12 +88,14 @@ class SurveyForm(forms.Form):
                 queryset=Choice.objects.filter(question=question),
                 label=question.body,
                 empty_label=None,
+                cache_choices=True,
             )
         elif question.type == Question.SELECT:
             item = forms.ModelChoiceField(
                 queryset=Choice.objects.filter(question=question),
                 label=question.body,
                 empty_label="",
+                cache_choices=True,
             )
         elif question.type == Question.LIKERT:
             choices = (
@@ -142,7 +145,11 @@ class SurveyForm(forms.Form):
                     rq.response = response
                     rq.question = field.question
                     rq.choice = choice
-                    rq.value = choice.value 
+                    textbox_key = 'subquestion_%d' % (choice.pk,)
+                    if textbox_key in cleaned:
+                        rq.value = cleaned[textbox_key]
+                    else:
+                        rq.value = choice.value 
                     rq.save()
             else:
                 # if the field doesn't have a queryset attribute, just save the
