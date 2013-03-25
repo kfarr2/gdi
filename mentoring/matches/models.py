@@ -12,6 +12,8 @@ class MentorManager(models.Manager):
         return super(MentorManager, self).get_queryset().filter(is_deleted=False)
 
     def withMenteeCount(self):
+        """Return a queryset of mentors, and include the number of mentors each
+        mentor mentors"""
         return Mentor.objects.raw("""
             SELECT 
                 mentor.*, COUNT(`match`.mentee_id) AS number_of_mentees
@@ -29,6 +31,21 @@ class MentorManager(models.Manager):
             GROUP BY mentor_id
         """)
 
+    def getResponses(self):
+        """Get the response object for each mentor"""
+        return Response.objects.raw("""
+            SELECT 
+                * 
+            FROM 
+                mentor 
+            INNER JOIN 
+                response 
+            USING(response_id) 
+            WHERE 
+                mentor.is_deleted = 0
+        """)
+
+
 class Mentor(models.Model):
     mentor_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, related_name="+")
@@ -38,9 +55,15 @@ class Mentor(models.Model):
     objects = MentorManager()
 
     def delete(self):
+        """Delete a mentor, and clean up loose ends"""
         user = self.user
+        # remove their response questions
         ResponseQuestion.objects.filter(response__user=user, response__survey_id=MENTOR_SURVEY_PK).delete()
+        # remove the response
+        Response.objects.filter(user=user, survey_id=MENTOR_SURVEY_PK).delete()
+        # delete any matches with this mentor
         Match.objects.filter(mentor=self).delete()
+        # delete this
         super(Mentor, self).delete()
 
     class Meta:
@@ -49,6 +72,7 @@ class Mentor(models.Model):
 
 class MenteeManager(models.Manager):
     def unmatched(self):
+        """Return the mentees who have not been matched with any mentor"""
         return Mentee.objects.raw("""
             SELECT 
                 * 
@@ -63,6 +87,20 @@ class MenteeManager(models.Manager):
                 mentee.is_deleted = 0
         """)
 
+    def getRespones(self):
+        """Return the response object for each mentee"""
+        return Response.objects.raw("""
+            SELECT 
+                * 
+            FROM 
+                mentee 
+            INNER JOIN 
+                response 
+            USING(response_id) 
+            WHERE 
+                mentee.is_deleted = 0
+        """)
+
 class Mentee(models.Model):
     mentee_id = models.AutoField(primary_key=True)
     is_deleted = models.BooleanField(default=False, blank=True)
@@ -73,22 +111,36 @@ class Mentee(models.Model):
     objects = MenteeManager()
 
     def delete(self):
+        """Delete this mentee and all the related stuff"""
         user = self.user
+        # delete response questions
         ResponseQuestion.objects.filter(response__user=user, response__survey_id=MENTEE_SURVEY_PK).delete()
+        # delete response itself
+        Response.objects.filter(user=user, survey_id=MENTEE_SURVEY_PK).delete()
+        # delete any matches with this person
         Match.objects.filter(mentee=self).delete()
+        # delete the mentee
         super(Mentee, self).delete()
 
     def scoreWith(self, mentor):
-        q = merge(self.response, mentor.response)
+        """Score this mentee against the passed-in mentor object"""
+        q = buildResponseQuestionLookupTable(self.response, mentor.response)
         return score(q)
 
     def findSuitors(self, mentors):
+        """Return a list of potential mentors, ordered by their preference for
+        the mentor"""
         suitors = []
         for mentor in mentors:
             s = self.scoreWith(mentor)
+            # keep track of the mentor, and the score with that mentor
             suitors.append((mentor, s))
+
+        # sort by the score first obviously, and for equal scores, order by the
+        # number of mentees (since a mentor with fewer mentees is preferred)
         suitors.sort(key=lambda pair: (-pair[1], pair[0].number_of_mentees))
 
+        # return the first 3 mentor picks
         return [s[0] for s in suitors[0:3]]
 
     class Meta:
@@ -100,12 +152,16 @@ class MatchManager(models.Manager):
         return super(MatchManager, self).get_queryset().filter(is_deleted=False)
 
     def byMentor(self, married=True, completed=False):
+        """Return a list of mentors, with an added attribute called "mentees"
+        containing a list of mentees the mentor is matched with"""
         where_clause = ""
+        # you can tell a couple is married by the notified_on date
         if married:
             where_clause = " match.notified_on IS NOT NULL"
         else:
             where_clause = " match.notified_on IS NULL"
 
+        # you can tell a couple is completed by the completed_on date
         if completed:
             where_clause += " AND match.completed_on IS NOT NULL "
         else:
@@ -141,18 +197,30 @@ class MatchManager(models.Manager):
                 match.is_deleted = 0 AND
                 """ + where_clause)
 
-        groups = defaultdict(list)
+        
+        mentors_lookup = defaultdict(list)
+        # for each row, see who the mentor is, and add it to the dictionary if
+        # it doesn't exist in there yet. Then add the special "mentees"
+        # attribute to the mentor object, and append the row to it
         for row in rows:
-            if row.mentor_id in groups:
-                groups[row.mentor_id].mentees.append(row)
+            # these mentor exists in the lookup table already, so just add this
+            # row to the list of mentees
+            if row.mentor_id in mentors_lookup:
+                mentors_lookup[row.mentor_id].mentees.append(row)
             else:
+                # need to create the mentees attribute, initialize it with the
+                # current row, and add to the lookup table
                 row.mentees = [row]
-                groups[row.mentor_id] = row
+                mentors_lookup[row.mentor_id] = row
 
-        return groups.values()
+        # return the list of mentors
+        return mentors_lookup.values()
 
     def marry(self, mentor_id, mentee_id):
+        """Marry the mentor with the mentee"""
         m = Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id)
+        # simply set the notified_on date to something not null to flag the
+        # match as married
         m.notified_on = datetime.now()
         m.save()
 
@@ -170,6 +238,8 @@ class MatchManager(models.Manager):
 
     def complete(self, mentor_id, mentee_id):
         match = Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id)
+        # just set the completed_on date to something to flag this match as
+        # completed
         match.completed_on = datetime.now()
         match.save()
 
@@ -187,17 +257,16 @@ class Match(models.Model):
     class Meta:
         db_table = "match"
 
-def getMentorResponses():
-    return Response.objects.raw("""
-    SELECT * FROM mentor INNER JOIN response USING(response_id) WHERE mentor.is_deleted = 0
-    """)
 
-def getMenteeRespones():
-    return Response.objects.raw("""
-    SELECT * FROM mentee INNER JOIN response USING(response_id) WHERE mentee.is_deleted = 0
-    """)
+def buildResponseQuestionLookupTable(response_a, response_b):
+    """Build a dictionary where the key is a question id, and the value is the
+    of the ResponseQuestion object for that question, with a special "value" or
+    "values" attribute. Include the ResponseQuestion objects from the
+    response_a and response_b Response objects"""
 
-def merge(response_a, response_b):
+    if response_a.survey_id == response_b.survey_id:
+        raise ValueError("response_a.survey_id cannot be the same as response_b.survey_id")
+
     rows = ResponseQuestion.objects.raw("""
         SELECT
             *,
@@ -216,20 +285,31 @@ def merge(response_a, response_b):
             response_id = %s OR response_id = %s
     """, (response_a.pk, response_b.pk))
 
-    q = {}
+    question_values = {}
+    # for each ResponseQuestion row, add it to the question_values map if it
+    # doesn't exist. For checkbox questions, attach a values attribute, and
+    # make it a list that includes all the values selected for that question
     for row in rows:
-        if row.question_id not in q:
-            q[row.question_id] = row
+        if row.question_id not in question_values:
+            question_values[row.question_id] = row
+            # for checkbox questions, it will have a "values" attribute that is
+            # a list of values selected for that question
             if row.type == Question.CHECKBOX:
                 row.values = [row.value]
         else:
-            # only checkbox questions should show up here, but we check anyways
-            if row.type == Question.CHECKBOX:
-                q[row.question_id].values.append(row.value)
+            # if we're in this branch, it MUST be a checkbox question, or there
+            # is a bug somewhere.
 
-    return q
+            if row.type == Question.CHECKBOX:
+                # append the value for this ResponseQuestion to the list of
+                # values
+                question_values[row.question_id].values.append(row.value)
+
+    return question_values
 
 def score(q):
+    """Using the dictionary from buildResponseQuestionLookupTable(), score the
+    results"""
     score = 0
     # check field of study
     mentee_pref = q[51].value

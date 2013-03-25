@@ -3,38 +3,27 @@ from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from mentoring.surveys.models import Survey, Question, Response
 from mentoring.surveys.forms import SurveyForm
-from .models import merge, score, getMentorResponses, getMenteeRespones, Mentee, Mentor, Match
+from .models import buildResponseQuestionLookupTable, score, Mentee, Mentor, Match
 
 def match(request):
-    mentors = getMentorResponses()
-    mentees = getMenteeRespones()
+    mentor_responses = Mentor.objects.getResponses()
+    mentee_responses = Mentee.objects.getRespones()
 
     results = []
-    # don't be hating my O(n**2) algorithm
-    for mentee in mentees:
+    # for each mentor, mentee pair, score them together
+    for mentee_response in mentee_responses:
         results.append([])
-        best_mentors = []
-        best_score = 0
-        for mentor in mentors:
-            q = merge(mentee, mentor)
-            try:
-                s = score(q)
-            except:
-                raise ValueError(mentee.pk, mentor.pk)
-            if s == best_score:
-                best_mentors.append(mentor)
-            elif s > best_score:
-                best_mentors = [mentor]
-
-            if s >= best_score:
-                best_score = s
+        for mentor_response in mentor_responses:
+            q = buildResponseQuestionLookupTable(mentee_response, mentor_response)
+            s = score(q)
 
             results[-1].append({
-                "mentor": mentor,
-                "mentee": mentee,
+                "mentor_response": mentor_response,
+                "mentee_response": mentee_response,
                 "score": s
             })
 
+    # find the best suitors for each unmatched mentee
     unmatched_mentees = list(Mentee.objects.unmatched())
     suitors = list(Mentor.objects.withMenteeCount())
     for mentee in unmatched_mentees:
@@ -46,8 +35,8 @@ def match(request):
 
     return render(request, "matches.html", {
         "results": results,
-        "mentees": mentees,
-        "mentors": mentors,
+        "mentee_responses": mentee_responses,
+        "mentor_responses": mentor_responses,
         "unmatched_mentees": unmatched_mentees,
         "engagements": engagements,
         "marriages": marriages,

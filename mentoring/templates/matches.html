@@ -9,8 +9,8 @@
     <thead>
         <tr>
             <td>&nbsp;</td>
-            {% for mentor in mentors %}
-                <td><a href="{% url "surveys-response" mentor.response_id %}">{{ mentor.user.username }}</a></td>
+            {% for mentor_response in mentor_responses %}
+                <td><a href="{% url "surveys-response" mentor_response.response_id %}">{{ mentor_response.user.username }}</a></td>
             {% endfor %}
         </tr>
     </thead>
@@ -19,7 +19,7 @@
             <tr>
                 <td>
                 {% if row|length %}
-                <a href="{% url "surveys-response" row.0.mentee.response_id %}">{{ row.0.mentee.user.username }}</a></td>
+                <a href="{% url "surveys-response" row.0.mentee_response.response_id %}">{{ row.0.mentee_response.user.username }}</a></td>
                 {% endif %}
                 {% for col in row %}
                     <td>{{ col.score }}</td>
