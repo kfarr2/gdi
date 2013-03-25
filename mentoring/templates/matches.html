@@ -34,15 +34,15 @@
 <h2>Suitors</h2>
 <ul>
 {% for mentee in unmatched_mentees %}
-    <li>{{ mentee.user.username }} {{ mentee.pk }}
+    <li>{{ mentee.user.username }} 
         <ul>
-        {% for suitor in mentee.suitors %}
+        {% for pair in mentee.suitors %}
             <li>
-                {{ suitor.user.username }} {{ suitor.pk }} 
+                {{ pair.score }} {{ pair.mentor.user.username }}
                 <form method="post" action="{% url 'matches-engage' %}" class="form-button">
                     {% csrf_token %}
                     <input type="hidden" name="mentee_id" value="{{ mentee.pk }}" />
-                    <input type="hidden" name="mentor_id" value="{{ suitor.pk }}" />
+                    <input type="hidden" name="mentor_id" value="{{ pair.suitor.pk }}" />
                     <input type="submit" name="submit" value="Engage" />
                 </form>
             </li>
@@ -63,6 +63,7 @@
         <ul>
         {% for mentee in mentor.mentees %}
             <li>{{ mentee.mentee_username }}
+                <br />
                 <form method="post" action="{% url 'matches-marry' %}" class="form-button">
                     {% csrf_token %}
                     <input type="hidden" name="mentee_id" value="{{ mentee.mentee_id }}" />
@@ -80,6 +81,8 @@
         {% endfor %}
         </ul>
     </li>
+{% empty %}
+    <li>No engagements</li>
 {% endfor %}
 </ul>
 
@@ -93,6 +96,7 @@
         <ul>
         {% for mentee in mentor.mentees %}
             <li>{{ mentee.mentee_username }}
+                <br />
                 <form method="post" action="{% url 'matches-divorce' %}" class="form-button">
                     {% csrf_token %}
                     <input type="hidden" name="mentee_id" value="{{ mentee.mentee_id }}" />
@@ -110,6 +114,8 @@
         {% endfor %}
         </ul>
     </li>
+{% empty %}
+    <li>No marriages</li>
 {% endfor %}
 </ul>
 
@@ -128,6 +134,8 @@
         {% endfor %}
         </ul>
     </li>
+{% empty %}
+    <li>No completions</li>
 {% endfor %}
 </ul>
 

@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
@@ -44,7 +44,6 @@ class MentorManager(models.Manager):
             WHERE 
                 mentor.is_deleted = 0
         """)
-
 
 class Mentor(models.Model):
     mentor_id = models.AutoField(primary_key=True)
@@ -128,20 +127,21 @@ class Mentee(models.Model):
         return score(q)
 
     def findSuitors(self, mentors):
-        """Return a list of potential mentors, ordered by their preference for
-        the mentor"""
+        """Return a list of namedtuples of potential mentors and their scores,
+        ordered by the mentee's preference for the mentor"""
+        Pair = namedtuple('Pair', 'mentor score')
         suitors = []
         for mentor in mentors:
             s = self.scoreWith(mentor)
             # keep track of the mentor, and the score with that mentor
-            suitors.append((mentor, s))
+            suitors.append(Pair(mentor, s))
 
         # sort by the score first obviously, and for equal scores, order by the
         # number of mentees (since a mentor with fewer mentees is preferred)
-        suitors.sort(key=lambda pair: (-pair[1], pair[0].number_of_mentees))
+        suitors.sort(key=lambda pair: (-pair.score, pair.mentor.number_of_mentees))
 
         # return the first 3 mentor picks
-        return [s[0] for s in suitors[0:3]]
+        return suitors[0:3]
 
     class Meta:
         db_table = "mentee"
@@ -196,7 +196,6 @@ class MatchManager(models.Manager):
                 mentor.is_deleted = 0 AND
                 match.is_deleted = 0 AND
                 """ + where_clause)
-
         
         mentors_lookup = defaultdict(list)
         # for each row, see who the mentor is, and add it to the dictionary if
@@ -305,12 +304,33 @@ def buildResponseQuestionLookupTable(response_a, response_b):
                 # values
                 question_values[row.question_id].values.append(row.value)
 
-    return question_values
+    # convert to q QuestionDict
+    return QuestionDict(question_values)
+
+class QuestionDict(dict):
+    """This dict will return an object of type BlankItem when the key to the
+    dict does not exist in __getitem__.
+
+    This helps to avoid KeyErrors in the score function.
+    """
+
+    class BlankItem(object):
+        def __init__(self):
+            self.value = None
+            self.values = None
+
+    def __getitem__(self, key):
+        return self.get(key, self.BlankItem())
 
 def score(q):
-    """Using the dictionary from buildResponseQuestionLookupTable(), score the
+    """Using the QuestionDict from buildResponseQuestionLookupTable(), score the
     results"""
+
+    # the magic numbers you see in this function indexing the q dictionary are
+    # the question_ids from the surveys
+
     score = 0
+
     # check field of study
     mentee_pref = q[51].value
     mentor_pref = q[19].value
@@ -361,6 +381,8 @@ def score(q):
 
     # areas the mentee wants to be mentored in
     want_to_be_mentored_in = q[55].values
+    # the values of q[55] are indices to the likert question_ids, so we use
+    # those to lookup the corresponding question
     for q_id in want_to_be_mentored_in:
         q_id = int(q_id)
         mentor_skill_level = int(q[q_id].value)
