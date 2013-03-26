@@ -1,10 +1,20 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import user_passes_test
 from mentoring.surveys.models import Survey, Question, Response
 from mentoring.surveys.forms import SurveyForm
 from .models import buildResponseQuestionLookupTable, score, Mentee, Mentor, Match
 
+def is_staff(user):
+    return user.is_staff
+
+@user_passes_test(is_staff)
+def manage(request):
+    return render(request, 'manage.html', {
+    })
+
+@user_passes_test(is_staff)
 def match(request):
     mentor_responses = Mentor.objects.getResponses()
     mentee_responses = Mentee.objects.getRespones()
@@ -43,10 +53,7 @@ def match(request):
         "completed": completed,
     })
 
-def manage(request):
-    return render(request, 'manage.html', {
-    })
-
+@user_passes_test(is_staff)
 def ments(request):
     mentors = Mentor.objects.all().select_related("user")
     mentees = Mentee.objects.all().select_related("user")
@@ -55,36 +62,42 @@ def ments(request):
         "mentees": mentees,
     })
 
+@user_passes_test(is_staff)
 def engage(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.engage(mentor_id, mentee_id)
     return HttpResponseRedirect(reverse("manage-match"))
 
+@user_passes_test(is_staff)
 def breakup(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.breakup(mentor_id, mentee_id)
     return HttpResponseRedirect(reverse("manage-match"))
 
+@user_passes_test(is_staff)
 def marry(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.marry(mentor_id, mentee_id)
     return HttpResponseRedirect(reverse("manage-match"))
 
+@user_passes_test(is_staff)
 def divorce(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.divorce(mentor_id, mentee_id)
     return HttpResponseRedirect(reverse("manage-match"))
 
+@user_passes_test(is_staff)
 def complete(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.complete(mentor_id, mentee_id)
     return HttpResponseRedirect(reverse("manage-match"))
 
+@user_passes_test(is_staff)
 def remove(request, object_name):
     if object_name == "mentors":
         model = Mentor
