@@ -84,7 +84,7 @@ class SurveyForm(forms.Form):
                 cache_choices=True,
             )
         elif question.type == Question.SELECT_MULTIPLE:
-            # prepare choices
+            # special field type so <optgroup> tags are used
             item = NestedModelMultipleChoiceField(
                 widget=forms.SelectMultiple, 
                 queryset=Choice.objects.filter(question=question),
@@ -140,13 +140,13 @@ class SurveyForm(forms.Form):
             # the ResponseQuestion
             if hasattr(field, 'queryset'):
                 if field.question.type in [Question.CHECKBOX, Question.SELECT_MULTIPLE]:
+                    choices = cleaned[k]
+                else:
                     # RADIO and SELECT questions only have one choice selected
                     # by the user. But to make this code more generic, we
                     # package that into a list, so we can use a for loop to
                     # create the QuestionResponse objects
                     choices = [cleaned[k]]
-                else:
-                    choices = cleaned[k]
 
                 for choice in choices:
                     rq = ResponseQuestion()
@@ -171,25 +171,39 @@ class SurveyForm(forms.Form):
         return response
 
 class NestedModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    """This field type takes the queryset, and builds a 2D list of choices
+    based on it. That allows the choices to be displayed in <optgroups> tags
+    """
     def __init__(self, *args, **kwargs):
         super(NestedModelMultipleChoiceField, self).__init__(*args, **kwargs)
         self.choices = self.nestChoices(self.queryset)
 
     def nestChoices(self, queryset):
-        qs = list(queryset)
         choice_lookup = {}
         choices = []
+        qs = list(queryset)
+        # index all the choices by pk
         for choice in qs:
             choice_lookup[choice.pk] = choice
 
+        # index all the subchoices by pk
         subchoice_lookup = {}
+
         for choice in qs:
-            if choice.value.startswith("["): # start of list
+            # this choice has choice choices because it starts with an [
+            # character
+            if choice.value.startswith("["): 
+                # load the PKs of the subitems based on this choice's value
                 items = json.loads(choice.value)
-                for k in items: subchoice_lookup[k] = True
+                # add all the subchoice PKs to the subchoice lookup table
+                for pk in items: subchoice_lookup[pk] = True
+
+                # add all the subchoices to this choice
                 subchoices = [(choice_lookup[k].pk, choice_lookup[k].body) for k in items]
                 choices.append((choice.body, subchoices))
             elif choice.pk not in subchoice_lookup:
+                # this is just a regular, non-nested choice, so there is
+                # nothing fancy to do
                 choices.append((choice.pk, choice.body))
 
         return choices
