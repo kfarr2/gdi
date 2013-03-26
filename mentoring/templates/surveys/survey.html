@@ -21,6 +21,8 @@
             {% include 'surveys/_field.html' %}
         {% elif field.question.type == Question.TEXTBOX %}
             {% include 'surveys/_field.html' %}
+        {% elif field.question.type == Question.SELECT_MULTIPLE %}
+            {% include 'surveys/_field.html' %}
         {% else %}
             <h1>FAIL {{ field }}</h1>
         {% endif %}

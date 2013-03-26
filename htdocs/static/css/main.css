@@ -16,6 +16,10 @@ textarea {
     display:block;
 }
 
+select[multiple] {
+    height:200px;
+}
+
 .left {
     text-align:left !important;
 }

@@ -1,3 +1,4 @@
+import json
 from django import forms
 from django.forms.widgets import RadioSelect
 from django.contrib.auth.models import User
@@ -82,6 +83,13 @@ class SurveyForm(forms.Form):
                 label=question.body,
                 cache_choices=True,
             )
+        elif question.type == Question.SELECT_MULTIPLE:
+            # prepare choices
+            item = NestedModelMultipleChoiceField(
+                widget=forms.SelectMultiple, 
+                queryset=Choice.objects.filter(question=question),
+                label=question.body,
+            )
         elif question.type == Question.RADIO:
             item = forms.ModelChoiceField(
                 widget=RadioSelect,
@@ -131,7 +139,7 @@ class SurveyForm(forms.Form):
             # field has a querset attribute), we need to add the foreign key to
             # the ResponseQuestion
             if hasattr(field, 'queryset'):
-                if field.question.type != Question.CHECKBOX:
+                if field.question.type in [Question.CHECKBOX, Question.SELECT_MULTIPLE]:
                     # RADIO and SELECT questions only have one choice selected
                     # by the user. But to make this code more generic, we
                     # package that into a list, so we can use a for loop to
@@ -162,6 +170,29 @@ class SurveyForm(forms.Form):
 
         return response
 
+class NestedModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def __init__(self, *args, **kwargs):
+        super(NestedModelMultipleChoiceField, self).__init__(*args, **kwargs)
+        self.choices = self.nestChoices(self.queryset)
+
+    def nestChoices(self, queryset):
+        qs = list(queryset)
+        choice_lookup = {}
+        choices = []
+        for choice in qs:
+            choice_lookup[choice.pk] = choice
+
+        subchoice_lookup = {}
+        for choice in qs:
+            if choice.value.startswith("["): # start of list
+                items = json.loads(choice.value)
+                for k in items: subchoice_lookup[k] = True
+                subchoices = [(choice_lookup[k].pk, choice_lookup[k].body) for k in items]
+                choices.append((choice.body, subchoices))
+            elif choice.pk not in subchoice_lookup:
+                choices.append((choice.pk, choice.body))
+
+        return choices
 
 class BlankWidget(forms.widgets.Widget):
     """Used as the wiget for HeadingFields, since nothing needs to be rendered"""

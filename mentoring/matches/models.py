@@ -332,27 +332,21 @@ def score(q):
     score = 0
 
     # check field of study
-    mentee_pref = q[51].value
-    mentor_pref = q[19].value
-    have_same_field_of_study = q[17].value == q[49].value
+    mentee_pref = q[51].values
+    mentor_pref = q[19].values
+    mentor_fields_of_study = q[17].values
+    mentee_fields_of_study = q[49].values
 
-    if mentee_pref == mentor_pref == "within" and have_same_field_of_study:
-        # both have same field of study, and want that
-        score += 2 # extra point since they both agree
-    elif mentee_pref == mentor_pref == "outside" and not have_same_field_of_study:
-        # both want outside field of study, and don't share the same field of study
-        score += 2 # extra point for agreement
-    elif mentee_pref == mentor_pref == "-1":
-        # both don't care
-        score += 1
-    elif set([mentee_pref, mentor_pref]) == set(["-1", "within"]) and have_same_field_of_study:
-        # one wants within field of study, the other doesn't care, and they
-        # share field of study
-        score += 1
-    elif set([mentee_pref, mentor_pref]) == set(["-1", "outside"]) and not have_same_field_of_study:
-        # one wants outside field of study, the other doesn't care, and they
-        # don't have the same field
-        score += 1
+    #matching_mentee = set(mentee_pref) & set(mentor_fields_of_study)
+    # = set(mentor_pref) & set(mentee_fields_of_study)
+
+    #number_in_common = len(set(mentee_pref) & set(mentor_pref) & set(mentor_fields_of_study) & set(mentee_fields_of_study))
+    #if number_in_common > 0:
+    #    score += 10
+
+
+
+    
 
     # check gender
     mentee_pref = q[52].value

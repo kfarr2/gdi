@@ -20,6 +20,7 @@ class Question(models.Model):
     LIKERT = 16
     HEADING = 32
     TEXTAREA = 64
+    SELECT_MULTIPLE = 128
 
     # Layouts
     NORMAL = 1
@@ -32,6 +33,7 @@ class Question(models.Model):
         (CHECKBOX, "Checkbox"),
         (RADIO, "Radio"),
         (SELECT, "Select"),
+        (SELECT_MULTIPLE, "Select Multiple"),
         (LIKERT, "Likert"),
         (HEADING, "Heading"),
     ))

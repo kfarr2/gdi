@@ -11,8 +11,8 @@
     {{ field }}
 {% else %}
     <tr>
-        <td>{{ field.label }} {% if debug %}{{ field.question.pk }}{% endif %}</th>
-        <td>{{ field }}</th>
+        <td>{{ field.label }} {% if debug %}{{ field.question.pk }}{% endif %}</td>
+        <td>{{ field }}</td>
     </tr>
     {% if field.errors %}
         <tr>
