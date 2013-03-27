@@ -317,7 +317,7 @@ class QuestionDict(dict):
     class BlankItem(object):
         def __init__(self):
             self.value = None
-            self.values = None
+            self.values = []
 
     def __getitem__(self, key):
         return self.get(key, self.BlankItem())
@@ -331,22 +331,35 @@ def score(q):
 
     score = 0
 
+    # they share a preferred field of study
+    MATCHING_FIELD_OF_STUDY_PREFERENCE = 10
+    # they match on their preferred gender
+    MATCHING_GENDER_PREFERENCE = 5
+    # there is a match on gender, *but* one person doesn't care about gender
+    MATCHING_GENDER_APATHY = 2
+    # the mentor is available as much as the mentee wants
+    MATCHING_AVAILABILITY = 3
+    # skill points
+    MATCHING_SKILL = {
+        23: 2, # Teaching techniques
+        24: 2, # networking
+        25: 2, # tenue review
+        26: 2, # research
+        27: 2, # time management
+        28: 2, # work life balance
+    }
+    # they have an interest in common
+    MATCHING_INTERESTS = 1
+
     # check field of study
     mentee_pref = q[51].values
     mentor_pref = q[19].values
     mentor_fields_of_study = q[17].values
     mentee_fields_of_study = q[49].values
 
-    #matching_mentee = set(mentee_pref) & set(mentor_fields_of_study)
-    # = set(mentor_pref) & set(mentee_fields_of_study)
-
-    #number_in_common = len(set(mentee_pref) & set(mentor_pref) & set(mentor_fields_of_study) & set(mentee_fields_of_study))
-    #if number_in_common > 0:
-    #    score += 10
-
-
-
-    
+    number_in_common = len(set(mentee_pref) & set(mentor_pref) & set(mentor_fields_of_study) & set(mentee_fields_of_study))
+    if number_in_common > 0:
+        score += 10
 
     # check gender
     mentee_pref = q[52].value
@@ -355,15 +368,15 @@ def score(q):
     mentor_gender = q[13].value
 
     if mentee_pref == mentor_pref == mentee_gender == mentor_gender == "male":
-        score += 2 # extra point for mutual agreement
+        score += MATCHING_GENDER_PREFERENCE
     elif mentee_pref == mentor_pref == mentee_gender == mentor_gender == "female":
-        score += 2 # extra point for mutual agreement
+        score += MATCHING_GENDER_PREFERENCE
     elif mentee_pref == mentor_pref == "-1":
-        score += 1
+        score += MATCHING_GENDER_APATHY
     elif set([mentee_pref, mentor_pref]) == set(["-1", "male"]) and mentee_gender == mentor_gender == "male":
-        score += 1
+        score += MATCHING_GENDER_APATHY
     elif set([mentee_pref, mentor_pref]) == set(["-1", "female"]) and mentee_gender == mentor_gender == "female":
-        score += 1
+        score += MATCHING_GENDER_APATHY
 
     # check availability
     mentee_availability = int(q[53].value)
@@ -371,7 +384,7 @@ def score(q):
     # if the mentor can be available the same amount or more than the mentee
     # wants, it is a good match
     if mentor_availability >= mentee_availability:
-        score += 1
+        score += MATCHING_AVAILABILITY
 
     # areas the mentee wants to be mentored in
     want_to_be_mentored_in = q[55].values
@@ -382,7 +395,7 @@ def score(q):
         mentor_skill_level = int(q[q_id].value)
         # if the mentor rates himself 3 or above on the likert, it is a good match
         if mentor_skill_level >= 3:
-            score += 1
+            score += MATCHING_SKILL[q_id]
 
     # interests
     mentee_interests = set(q[30].values)
@@ -392,6 +405,6 @@ def score(q):
         # We don't give a point for each interest, because this field seems
         # less important to me than the other ones, and shouldn't affect the
         # results too much
-        score += 1
+        score += MATCHING_INTERESTS
 
     return score

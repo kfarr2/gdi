@@ -9,9 +9,23 @@
         <h2>{{ question.body }}</h2>
     {% else %}
         {% if not question.hide_label %}
-            <p><em>{{ question.body }}</em>: {{ question.choice_body }}</p>
+            <p><em>{{ question.body }}</em>:
+        {% endif %}
+
+        {% if question.choice_rows %}
+            {% if not question.hide_label %}
+                </p>
+            {% endif %}
+            <ul>
+                {% for row in question.choice_rows %}
+                    <li>{{ row }}</li>
+                {% endfor %}
+            </ul>
         {% else %}
-            <p>{{ question.choice_body }}</p>
+            {{ question.choice_body }}
+            {% if not question.hide_label %}
+                </p>
+            {% endif %}
         {% endif %}
     {% endif %}
         

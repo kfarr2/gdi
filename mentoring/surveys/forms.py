@@ -253,6 +253,9 @@ class MenteeSurveyForm(SurveyForm):
                         cleaned.pop(name, None)
                     if name == "question_62":
                         start_removing_errors = True
+        elif choice is not None:
+            # remove this question since the answer doesn't matter
+            cleaned.pop("question_62", None)
 
         return cleaned
 

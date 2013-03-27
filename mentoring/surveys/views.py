@@ -83,7 +83,10 @@ def done(request):
 @login_required
 def response(request, response_id):
     response = get_object_or_404(Response, pk=response_id)
-    report = response.report()
+    report = list(response.report())
+    for row in report:
+        if row.choice_body and "\n" in row.choice_body:
+            row.choice_rows = row.choice_body.split("\n")
     return render(request, "surveys/response.html", {
         'response': response,
         'report': report,
