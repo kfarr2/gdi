@@ -121,6 +121,35 @@ class SurveyForm(forms.Form):
 
         return item
 
+    def clean(self):
+        cleaned = super(SurveyForm, self).clean()
+        # if a choice on a CHECKBOX or RADIO question has a subfield attached
+        # to it, make that subfield required (only if that choice was chosen,
+        # of course)
+        for key, field in self.fields.items():
+            # only look at questions_
+            if not key.startswith("question_"):
+                continue
+            # only these field types have subquestions
+            if field.question.type not in [Question.CHECKBOX, Question.RADIO]:
+                continue
+            # was a choice selected?
+            choice = cleaned.get(key, None)
+            if choice is None:
+                continue
+
+            # does this choice have a subfield?
+            subfield_key = 'subquestion_%d' % (choice.pk)
+            if subfield_key not in self.fields:
+                continue
+
+            # was the subfield filled out?
+            if cleaned.get(subfield_key, "").strip() == "":
+                self._errors[subfield_key] = self.error_class(['This field is required'])
+                cleaned.pop(subfield_key)
+
+        return cleaned
+
     def save(self, user):
         cleaned = self.cleaned_data
         response = Response()

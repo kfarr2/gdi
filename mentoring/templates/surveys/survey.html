@@ -5,6 +5,9 @@
 {% block content %}
 <div class="survey">
 <form method="post" action="">
+    {% if form.errors %}
+        <p class="error">Please answer every question.</p> 
+    {% endif %}
     {% csrf_token %}
     {% for field in form.questionFields %}
         {% if field.question.type == Question.HEADING %}

@@ -10,6 +10,11 @@ body {
 
 label {
     display:block;
+    margin-top:10px;
+}
+
+label.radio {
+    margin-top:0;
 }
 
 textarea {
@@ -31,6 +36,10 @@ select[multiple] {
 .errorlist {
     color:#ff0000;
     margin-top:0;
+}
+
+.error {
+    color:#ff0000;
 }
 
 .clear {
