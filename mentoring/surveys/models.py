@@ -40,6 +40,7 @@ class Question(models.Model):
     rank = models.IntegerField()
     body = models.TextField(blank=True)
     hide_label = models.BooleanField(default=False, blank=True)
+    required = models.BooleanField(default=True, blank=True)
     layout = models.IntegerField(choices=(
         (NORMAL, "Normal"),
         (TABULAR, "Tabular"),

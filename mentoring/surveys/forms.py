@@ -75,13 +75,19 @@ class SurveyForm(forms.Form):
     def questionToFormField(self, question):
         """Generate a form field for a question"""
         if question.type == Question.TEXTBOX:
-            item = forms.CharField(min_length=0, max_length=255, label=question.body)
+            item = forms.CharField(
+                min_length=0, 
+                max_length=255, 
+                label=question.body,
+                required=question.required,
+            ) 
         elif question.type == Question.CHECKBOX:
             item = forms.ModelMultipleChoiceField(
                 widget=CheckboxSelectMultiple, 
                 queryset=Choice.objects.filter(question=question),
                 label=question.body,
                 cache_choices=True,
+                required=question.required,
             )
         elif question.type == Question.SELECT_MULTIPLE:
             # special field type so <optgroup> tags are used
@@ -89,6 +95,7 @@ class SurveyForm(forms.Form):
                 widget=forms.SelectMultiple, 
                 queryset=Choice.objects.filter(question=question),
                 label=question.body,
+                required=question.required,
             )
         elif question.type == Question.RADIO:
             item = forms.ModelChoiceField(
@@ -97,6 +104,7 @@ class SurveyForm(forms.Form):
                 label=question.body,
                 empty_label=None,
                 cache_choices=True,
+                required=question.required,
             )
         elif question.type == Question.SELECT:
             item = forms.ModelChoiceField(
@@ -104,6 +112,7 @@ class SurveyForm(forms.Form):
                 label=question.body,
                 empty_label="",
                 cache_choices=True,
+                required=question.required,
             )
         elif question.type == Question.LIKERT:
             choices = (
@@ -113,11 +122,22 @@ class SurveyForm(forms.Form):
                 (3, "Very Good"),
                 (4, "Excellent"),
             )
-            item = forms.TypedChoiceField(label=question.body, choices=choices, widget=RadioSelect)
+            item = forms.TypedChoiceField(
+                label=question.body, 
+                choices=choices, 
+                widget=RadioSelect,
+                required=question.required,
+            )
         elif question.type == Question.HEADING:
             item = HeadingField(label=question.body, required=False)
         elif question.type == Question.TEXTAREA:
-            item = forms.CharField(min_length=0, max_length=5000, required=False, label=question.body, widget=forms.Textarea)
+            item = forms.CharField(
+                min_length=0, 
+                max_length=5000, 
+                required=question.required, 
+                label=question.body, 
+                widget=forms.Textarea
+            )
 
         return item
 
@@ -134,19 +154,28 @@ class SurveyForm(forms.Form):
             if field.question.type not in [Question.CHECKBOX, Question.RADIO]:
                 continue
             # was a choice selected?
-            choice = cleaned.get(key, None)
-            if choice is None:
+            choices = cleaned.get(key, None)
+            if choices is None:
                 continue
 
-            # does this choice have a subfield?
-            subfield_key = 'subquestion_%d' % (choice.pk)
-            if subfield_key not in self.fields:
-                continue
+            # normalize the choices. since RADIO questions have a single
+            # choice, and CHECKBOXES have multiple choices, convert to a list
+            if field.question.type == Question.RADIO:
+                choices = [choices]
+            else:
+                choices = list(choices)
 
-            # was the subfield filled out?
-            if cleaned.get(subfield_key, "").strip() == "":
-                self._errors[subfield_key] = self.error_class(['This field is required'])
-                cleaned.pop(subfield_key)
+            # check all the choices for subfields
+            for choice in choices:
+                # does this choice have a subfield?
+                subfield_key = 'subquestion_%d' % (choice.pk)
+                if subfield_key not in self.fields:
+                    continue
+
+                # was the subfield filled out?
+                if cleaned.get(subfield_key, "").strip() == "":
+                    self._errors[subfield_key] = self.error_class(['This field is required'])
+                    cleaned.pop(subfield_key, None)
 
         return cleaned
 
@@ -163,6 +192,8 @@ class SurveyForm(forms.Form):
             if not k.startswith("question_"): continue
             # ignore headings
             if field.question.type == Question.HEADING: continue
+            # ignore missing fields
+            if k not in cleaned: continue
 
             # for questions with a relationship (which is determined if the
             # field has a querset attribute), we need to add the foreign key to
@@ -198,6 +229,32 @@ class SurveyForm(forms.Form):
                 rq.save()
 
         return response
+
+class MenteeSurveyForm(SurveyForm):
+    def clean(self):
+        cleaned = super(MenteeSurveyForm, self).clean()
+
+        # the "Have you already contacted this person to be your mentor?"
+        # question is only required if the "Is there a specific person at PSU
+        # that you would like to have as a mentor?" question is answered with a
+        # yes
+        choice = cleaned.get("question_61")
+        if choice is not None and choice.value.strip().lower() == "yes":
+            if cleaned.get("question_62", None) is None:
+                self._errors["question_62"] = self.error_class(['This field is required'])
+                cleaned.pop("question_62", None)
+
+            # make all the fields after question_62 not required
+            start_removing_errors = False
+            for name, field in self.fields.items():
+                if name.startswith("question_"):
+                    if start_removing_errors:
+                        self._errors.pop(name, None)
+                        cleaned.pop(name, None)
+                    if name == "question_62":
+                        start_removing_errors = True
+
+        return cleaned
 
 class NestedModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     """This field type takes the queryset, and builds a 2D list of choices

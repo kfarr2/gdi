@@ -1,0 +1,23 @@
+{% extends 'surveys/survey.html' %}
+{% block content %}
+{{ block.super }}
+<script type="text/javascript">
+function showQuestions(){
+    var dependent_question = $('#question_62');
+    var siblings = $('#question_62 ~ .question-block');
+    var yes_checked = $('input[name="question_61"]:first').prop('checked')
+    if(yes_checked){
+        dependent_question.show();
+        siblings.hide();
+    } else {
+        dependent_question.hide();
+        siblings.show();
+    }
+}
+
+$(document).ready(function(){
+    $('input[name="question_61"]').on('click change focus blur', showQuestions);
+    showQuestions();
+});
+</script>
+{% endblock %}
