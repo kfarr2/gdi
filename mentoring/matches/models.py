@@ -293,13 +293,12 @@ def buildResponseQuestionLookupTable(response_a, response_b):
             question_values[row.question_id] = row
             # for checkbox questions, it will have a "values" attribute that is
             # a list of values selected for that question
-            if row.type == Question.CHECKBOX:
+            if Question.isMultiValuedType(row.type):
                 row.values = [row.value]
         else:
-            # if we're in this branch, it MUST be a checkbox question, or there
-            # is a bug somewhere.
-
-            if row.type == Question.CHECKBOX:
+            # if we're in this branch, it MUST be a checkbox, or select
+            # multiple question, or there is a bug somewhere.
+            if Question.isMultiValuedType(row.type):
                 # append the value for this ResponseQuestion to the list of
                 # values
                 question_values[row.question_id].values.append(row.value)

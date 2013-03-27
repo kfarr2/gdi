@@ -48,6 +48,17 @@ class Question(models.Model):
 
     survey = models.ForeignKey(Survey)
 
+    @classmethod
+    def isMultiValuedType(cls, type_):
+        return type_ in [cls.CHECKBOX, cls.SELECT_MULTIPLE]
+
+    @classmethod
+    def couldHaveSubquestion(cls, type_):
+        return type_ in [cls.CHECKBOX, cls.RADIO]
+
+    def isMultiValued(self):
+        return self.isMultiValuedType(self.type)
+
     class Meta:
         db_table = 'question'
         ordering = ['survey__pk', 'rank']

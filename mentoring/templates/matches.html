@@ -42,7 +42,7 @@
                 <form method="post" action="{% url 'matches-engage' %}" class="form-button">
                     {% csrf_token %}
                     <input type="hidden" name="mentee_id" value="{{ mentee.pk }}" />
-                    <input type="hidden" name="mentor_id" value="{{ pair.suitor.pk }}" />
+                    <input type="hidden" name="mentor_id" value="{{ pair.mentor.pk }}" />
                     <input type="submit" name="submit" value="Engage" />
                 </form>
             </li>

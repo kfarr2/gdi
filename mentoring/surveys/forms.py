@@ -22,7 +22,7 @@ class SurveyForm(forms.Form):
             # because the choices for a checkbox or radio button can have an
             # optional textfield associated with it, we need to add that
             # "subquestion" to the form
-            if q.type in [Question.CHECKBOX, Question.RADIO]:
+            if Question.couldHaveSubquestion(q.type):
                 choices = item.queryset.all()
                 for c in choices:
                     if c.has_textbox:
@@ -60,7 +60,7 @@ class SurveyForm(forms.Form):
                 # have a textbox where the user would fill something in)
                 # we need to tack on the "subquestion" in a convient place, so
                 # it is easily rendered in the template
-                if item.question.type in [Question.CHECKBOX, Question.RADIO]:
+                if Question.couldHaveSubquestion(item.question.type):
                     choice_fields = []
                     choices = list(self.fields[k].queryset)
                     for field, choice in zip(item, choices):
@@ -151,7 +151,7 @@ class SurveyForm(forms.Form):
             if not key.startswith("question_"):
                 continue
             # only these field types have subquestions
-            if field.question.type not in [Question.CHECKBOX, Question.RADIO]:
+            if not Question.couldHaveSubquestion(field.question.type):
                 continue
             # was a choice selected?
             choices = cleaned.get(key, None)
@@ -199,7 +199,7 @@ class SurveyForm(forms.Form):
             # field has a querset attribute), we need to add the foreign key to
             # the ResponseQuestion
             if hasattr(field, 'queryset'):
-                if field.question.type in [Question.CHECKBOX, Question.SELECT_MULTIPLE]:
+                if field.question.isMultiValued():
                     choices = cleaned[k]
                 else:
                     # RADIO and SELECT questions only have one choice selected
