@@ -20,22 +20,14 @@
 
         {% if field.question.type == Question.HEADING %}
             {% include 'surveys/_heading.html' %}
-        {% elif field.question.type == Question.CHECKBOX %}
+        {% elif field.question.type == Question.CHECKBOX or field.question.type == Question.RADIO %}
             {% include 'surveys/_choice.html' %}
-        {% elif field.question.type == Question.RADIO %}
-            {% include 'surveys/_choice.html' %}
-        {% elif field.question.type == Question.SELECT %}
+        {% elif field.question.type == Question.SELECT or field.question.type == Question.TEXTAREA or field.question.type == Question.TEXTBOX or field.question.type == Question.SELECT_MULTIPLE %}
             {% include 'surveys/_field.html' %}
         {% elif field.question.type == Question.LIKERT %}
             {% include 'surveys/_likert.html' %}
-        {% elif field.question.type == Question.TEXTAREA %}
-            {% include 'surveys/_field.html' %}
-        {% elif field.question.type == Question.TEXTBOX %}
-            {% include 'surveys/_field.html' %}
-        {% elif field.question.type == Question.SELECT_MULTIPLE %}
-            {% include 'surveys/_field.html' %}
         {% else %}
-            <h1>FAIL {{ field }}</h1>
+            <h1>Field probably not rendered properly {{ field }}</h1>
         {% endif %}
 
         {% if field.question.layout == Question.NORMAL or field.question.layout == Question.TABULAR and field.question.stop_layout %}
