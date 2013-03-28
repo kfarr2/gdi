@@ -142,6 +142,15 @@ select[multiple] {
     margin-bottom:10px;
 }
 
+.likert {
+    border-collapse:0;
+    border-spacing:0;
+}
+
+.likert td {
+    padding:3px;
+}
+
 .likert thead th {
     text-align:center;
 }
@@ -153,4 +162,9 @@ select[multiple] {
 
 .likert tbody td.likert-option:hover {
     background-color:#999;
+}
+
+.likert tbody tr:hover td {
+    background-color:#efefef;
+
 }

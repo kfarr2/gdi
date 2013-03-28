@@ -328,27 +328,44 @@ def score(q):
     # the magic numbers you see in this function indexing the q dictionary are
     # the question_ids from the surveys
 
-    score = 0
+    ###########
+    # Weights #
+    ###########
 
     # they share a preferred field of study
     MATCHING_FIELD_OF_STUDY_PREFERENCE = 10
     # they match on their preferred gender
     MATCHING_GENDER_PREFERENCE = 5
     # there is a match on gender, *but* one person doesn't care about gender
-    MATCHING_GENDER_APATHY = 2
+    MATCHING_GENDER_ONE_SIDED = 3
+    # both don't care about gender
+    MATCHING_GENDER_APATHY = 0
     # the mentor is available as much as the mentee wants
     MATCHING_AVAILABILITY = 3
-    # skill points
+    # skill points (the key is the question_id from the mentor form, value is
+    # the amount of points to award for a match)
     MATCHING_SKILL = {
         23: 2, # Teaching techniques
         24: 2, # networking
         25: 2, # tenue review
+        68: 2, # promotion to full profship
+        69: 2, # moving to tenure track
+        70: 2, # become admin
         26: 2, # research
         27: 2, # time management
         28: 2, # work life balance
+        65: 2, # navigating psu
+        66: 2, # faculty of color
+        67: 2, # publication
     }
     # they have an interest in common
     MATCHING_INTERESTS = 1
+
+    # the mentee already has someone in mind
+    if q[61].value == "yes":
+        return -1
+
+    score = 0
 
     # check field of study
     mentee_pref = q[51].values
@@ -356,8 +373,9 @@ def score(q):
     mentor_fields_of_study = q[17].values
     mentee_fields_of_study = q[49].values
 
-    number_in_common = len(set(mentee_pref) & set(mentor_pref) & set(mentor_fields_of_study) & set(mentee_fields_of_study))
-    if number_in_common > 0:
+    matches_mentee_pref = bool(set(mentee_pref) & set(mentor_fields_of_study)) 
+    matches_mentor_pref = bool(set(mentor_pref) & set(mentee_fields_of_study))
+    if matches_mentee_pref and matches_mentor_pref:
         score += 10
 
     # check gender
@@ -366,16 +384,14 @@ def score(q):
     mentee_gender = q[45].value
     mentor_gender = q[13].value
 
-    if mentee_pref == mentor_pref == mentee_gender == mentor_gender == "male":
-        score += MATCHING_GENDER_PREFERENCE
-    elif mentee_pref == mentor_pref == mentee_gender == mentor_gender == "female":
+    if (mentee_pref == mentor_gender) and (mentor_pref == mentee_gender):
         score += MATCHING_GENDER_PREFERENCE
     elif mentee_pref == mentor_pref == "-1":
         score += MATCHING_GENDER_APATHY
-    elif set([mentee_pref, mentor_pref]) == set(["-1", "male"]) and mentee_gender == mentor_gender == "male":
-        score += MATCHING_GENDER_APATHY
-    elif set([mentee_pref, mentor_pref]) == set(["-1", "female"]) and mentee_gender == mentor_gender == "female":
-        score += MATCHING_GENDER_APATHY
+    elif (mentee_pref == mentor_gender) and mentor_pref == "-1":
+        score += MATCHING_GENDER_ONE_SIDED
+    elif (mentor_pref == mentee_gender) and mentee_pref == "-1":
+        score += MATCHING_GENDER_ONE_SIDED
 
     # check availability
     mentee_availability = int(q[53].value)

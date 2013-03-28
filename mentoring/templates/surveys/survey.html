@@ -10,27 +10,37 @@
     {% endif %}
     {% csrf_token %}
     {% for field in form.questionFields %}
-        <div id="question_{{ field.question.pk }}" class="question-block">
-            {% if field.question.type == Question.HEADING %}
-                {% include 'surveys/_heading.html' %}
-            {% elif field.question.type == Question.CHECKBOX %}
-                {% include 'surveys/_choice.html' %}
-            {% elif field.question.type == Question.RADIO %}
-                {% include 'surveys/_choice.html' %}
-            {% elif field.question.type == Question.SELECT %}
-                {% include 'surveys/_field.html' %}
-            {% elif field.question.type == Question.LIKERT %}
-                {% include 'surveys/_likert.html' %}
-            {% elif field.question.type == Question.TEXTAREA %}
-                {% include 'surveys/_field.html' %}
-            {% elif field.question.type == Question.TEXTBOX %}
-                {% include 'surveys/_field.html' %}
-            {% elif field.question.type == Question.SELECT_MULTIPLE %}
-                {% include 'surveys/_field.html' %}
-            {% else %}
-                <h1>FAIL {{ field }}</h1>
-            {% endif %}
-        </div>
+        {% comment %}
+        only wrap this question in a div if it's a question with a normal
+        layout, or it's the start of a tabular layout 
+        {% endcomment %}
+        {% if field.question.layout == Question.NORMAL or field.question.layout == Question.TABULAR and field.question.start_layout %}
+            <div id="question_{{ field.question.pk }}" class="question-block">
+        {% endif %}
+
+        {% if field.question.type == Question.HEADING %}
+            {% include 'surveys/_heading.html' %}
+        {% elif field.question.type == Question.CHECKBOX %}
+            {% include 'surveys/_choice.html' %}
+        {% elif field.question.type == Question.RADIO %}
+            {% include 'surveys/_choice.html' %}
+        {% elif field.question.type == Question.SELECT %}
+            {% include 'surveys/_field.html' %}
+        {% elif field.question.type == Question.LIKERT %}
+            {% include 'surveys/_likert.html' %}
+        {% elif field.question.type == Question.TEXTAREA %}
+            {% include 'surveys/_field.html' %}
+        {% elif field.question.type == Question.TEXTBOX %}
+            {% include 'surveys/_field.html' %}
+        {% elif field.question.type == Question.SELECT_MULTIPLE %}
+            {% include 'surveys/_field.html' %}
+        {% else %}
+            <h1>FAIL {{ field }}</h1>
+        {% endif %}
+
+        {% if field.question.layout == Question.NORMAL or field.question.layout == Question.TABULAR and field.question.stop_layout %}
+            </div>
+        {% endif %}
             
     {% endfor %}
     <input type="submit" name="submit" value="Submit" class="submit" />
