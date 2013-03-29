@@ -6,12 +6,16 @@ function showQuestions(){
     var dependent_question = $('#question_62');
     var siblings = $('#question_62 ~ .question-block');
     var yes_checked = $('input[name="question_61"]:first').prop('checked')
+    var no_checked = $('input[name="question_61"]:last').prop('checked')
     if(yes_checked){
         dependent_question.show();
         siblings.hide();
-    } else {
+    } else if(no_checked){
         dependent_question.hide();
         siblings.show();
+    } else {
+        dependent_question.hide();
+        siblings.hide();
     }
 }
 
