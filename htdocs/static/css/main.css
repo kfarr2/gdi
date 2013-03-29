@@ -111,6 +111,8 @@ select[multiple] {
 
 .ment-button a {
     color:inherit;
+    padding:10px;
+    display:inline-block;
 }
 
 .ment-button h3 {
