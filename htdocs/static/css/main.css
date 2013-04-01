@@ -13,6 +13,14 @@ label {
     margin-top:10px;
 }
 
+a:link, a:visited, a:hover {
+    color:#A33F1F;
+}
+
+a:hover {
+    color:#603417;
+}
+
 label.radio {
     margin-top:0;
 }
@@ -45,6 +53,21 @@ select[multiple] {
 
 .clear {
     clear:both;
+}
+
+.data {
+    border-collapse:collapse;
+    border:1px solid black;
+}
+
+.data td {
+    border:1px solid black;
+    border-spacing:1px;
+    padding:3px;
+}
+
+.data .number {
+    text-align:right;
 }
 
 .form-button {
@@ -103,6 +126,17 @@ select[multiple] {
     padding:20px;
 }
 
+#admin-nav {
+    margin-left:0;
+    padding-left:0;
+}
+
+#admin-nav li {
+    float:left;
+    list-style-type:none;
+    margin-right:20px;
+    margin-left:0;
+}
 
 .ment-button {
     background-color:#8B9822;

@@ -1,8 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'admin.html' %}
 
 {% block page_title %}Welcome{% endblock %}
 
 {% block content %}
+{{ block.super }}
 <form method="POST" action="">
     <p>Are you sure you want to delete {{ object.user.username }} from the system?</p>
     <input type="hidden" name="id" value="{{ object.pk }}" />

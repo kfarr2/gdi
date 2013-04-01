@@ -1,8 +1,9 @@
-{% extends 'base.html' %}
+{% extends 'admin.html' %}
 
 {% block page_title %}Welcome{% endblock %}
 
 {% block content %}
+{{ block.super }}
 <div class="survey">
 {% for question in report %}
     {% if question.type == Question.HEADING %}

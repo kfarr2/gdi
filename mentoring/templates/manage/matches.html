@@ -4,8 +4,8 @@
 
 {% block content %}
 {{ block.super }}
-<h2>Scores</h2>
-<table>
+<h3>Scores</h3>
+<table class="data">
     <thead>
         <tr>
             <td>&nbsp;</td>
@@ -22,7 +22,7 @@
                 <a href="{% url "surveys-response" row.0.mentee_response.response_id %}">{{ row.0.mentee_response.user.username }}</a></td>
                 {% endif %}
                 {% for col in row %}
-                    <td>{{ col.score }}</td>
+                    <td class="number">{{ col.score }}</td>
                 {% endfor %}
             </tr>
         {% endfor %}
@@ -31,7 +31,7 @@
 
 <table class="panel-view"><tr><td>
 
-<h2>Suitors</h2>
+<h3>Suitors</h3>
 <ul>
 {% for mentee in unmatched_mentees %}
     <li>{{ mentee.user.username }} 
@@ -55,7 +55,7 @@
 </td>
 <td>
 
-<h2>Engagements</h2>
+<h3>Engagements</h3>
 <ul>
 {% for mentor in engagements %}
     <li>
@@ -88,7 +88,7 @@
 
 </td>
 <td>
-<h2>Marriages</h2>
+<h3>Marriages</h3>
 <ul>
 {% for mentor in marriages %}
     <li>

@@ -1,4 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-<p><a href="{% url 'manage' %}">Management Home</a></p>
+<h2>Administration</h2>
+<ul id="admin-nav">
+    <li><a href="{% url 'manage-ments' %}">View/Delete Mentors and Mentees</a></li>
+    <li><a href="{% url 'manage-match' %}">View/Add/Edit Matches</a></li>
+    <li><a href="{% url 'manage-completions' %}">View Completions</a></li>
+</ul>
+<div class="clear"></div>
 {% endblock %}
