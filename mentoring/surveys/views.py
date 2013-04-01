@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from .models import Survey, Question, Response
 from .forms import SurveyForm, MenteeSurveyForm
@@ -80,7 +81,7 @@ def done(request):
 
     })
 
-@login_required
+@staff_member_required
 def response(request, response_id):
     response = get_object_or_404(Response, pk=response_id)
     report = list(response.report())

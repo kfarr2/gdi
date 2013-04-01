@@ -123,21 +123,5 @@
 </td>
 </tr>
 </table>
-<h2>Completed</h2>
-<ul>
-{% for mentor in completed %}
-    <li>
-        {{ mentor.mentor_username }}
-        <ul>
-        {% for mentee in mentor.mentees %}
-            <li>{{ mentee.mentee_username }}</li>
-        {% endfor %}
-        </ul>
-    </li>
-{% empty %}
-    <li>No completions</li>
-{% endfor %}
-</ul>
-
 {% endblock %}
 
