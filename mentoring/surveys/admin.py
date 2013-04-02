@@ -4,12 +4,20 @@ from .models import *
 class ChoiceInline(admin.TabularInline):
     model = Choice
 
+class QuestionInline(admin.TabularInline):
+    model = Question
+
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [
         ChoiceInline,
     ]
 
-admin.site.register(Survey)
+class SurveyAdmin(admin.ModelAdmin):
+    inlines = [
+        QuestionInline,
+    ]
+
+admin.site.register(Survey, SurveyAdmin)
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(Choice)
 admin.site.register(Response)

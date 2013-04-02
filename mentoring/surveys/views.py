@@ -1,11 +1,11 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from .models import Survey, Question, Response
 from .forms import SurveyForm, MenteeSurveyForm
 from mentoring.matches.models import Mentor, Mentee, MENTOR_SURVEY_PK, MENTEE_SURVEY_PK
+from mentoring.matches.decorators import staff_member_required
 
 @login_required
 def survey(request, survey_id):
@@ -85,9 +85,6 @@ def done(request):
 def response(request, response_id):
     response = get_object_or_404(Response, pk=response_id)
     report = list(response.report())
-    for row in report:
-        if row.choice_body and "\n" in row.choice_body:
-            row.choice_rows = row.choice_body.split("\n")
     return render(request, "surveys/response.html", {
         'response': response,
         'report': report,

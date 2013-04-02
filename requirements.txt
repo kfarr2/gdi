@@ -1,6 +1,8 @@
-Django==1.5
+## The following requirements were added by pip --freeze:
+Django==1.5.1
 MySQL-python==1.2.4
--e git+https://github.com/mdj2/django-cas.git@0f3adb699309f919049004b0ce23713bb43baf5d#egg=django_cas-2.1.1-py2.6-dev
+django-cas-pdx==1.0.0
+ordereddict==1.1
 python-ldap==2.3.13
 pytz==2013b
 wsgiref==0.1.2

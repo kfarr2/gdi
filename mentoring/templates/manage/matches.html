@@ -34,7 +34,7 @@
 <h3>Suitors</h3>
 <ul>
 {% for mentee in unmatched_mentees %}
-    <li>{{ mentee.user.username }} 
+    <li><a href="{% url "surveys-response" mentee.response.pk %}">{{ mentee.user.username }}</a>
         <ul>
         {% for pair in mentee.suitors %}
             <li>

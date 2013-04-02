@@ -1,9 +1,9 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
-from django.contrib.admin.views.decorators import staff_member_required
 from mentoring.surveys.models import Survey, Question, Response
 from mentoring.surveys.forms import SurveyForm
+from mentoring.matches.decorators import staff_member_required
 from .models import buildResponseQuestionLookupTable, score, Mentee, Mentor, Match
 
 @staff_member_required
@@ -110,7 +110,7 @@ def remove(request, object_name):
 
     if request.POST:
         model.objects.get(pk=request.POST.get('id')).delete()
-        return HttpResponseRedirect(reverse("manage"))
+        return HttpResponseRedirect(reverse("manage-ments"))
     else:
         obj = model.objects.get(pk=request.GET['id'])
         return render(request, "manage/confirm.html", {

@@ -29,12 +29,12 @@ urlpatterns = patterns('',
     # management
     url(r'^manage/?$', matches.views.manage, name='manage'),
     url(r'^manage/match/?$', matches.views.match, name='manage-match'),
-    url(r'^manage/ments?$', matches.views.ments, name='manage-ments'),
+    url(r'^manage/ments/?$', matches.views.ments, name='manage-ments'),
     url(r'^manage/completions?$', matches.views.completions, name='manage-completions'),
 
     # auth
-    url(r'^accounts/login/$', 'django_cas.views.login', name='accounts-login'),
-    url(r'^accounts/logout/$', 'django_cas.views.logout', name='accounts-logout', kwargs={"next_page": "/"}),
+    url(r'^accounts/login/$', 'django_cas_pdx.views.login', name='accounts-login'),
+    url(r'^accounts/logout/$', 'django_cas_pdx.views.logout', name='accounts-logout', kwargs={"next_page": "/"}),
     # Examples:
     # url(r'^$', 'example.views.home', name='home'),
     # url(r'^example/', include('example.foo.urls')),

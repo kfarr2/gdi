@@ -1,3 +1,5 @@
+# Python 2.6 doesn't have OrderedDict in the collections module
+from ordereddict import OrderedDict 
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -98,7 +100,7 @@ class Response(models.Model):
                 question.hide_label,
                 question.layout,
                 response_question.value as cached_value,
-                GROUP_CONCAT(IF(choice.body IS NULL OR choice.has_textbox, response_question.value, choice.body) SEPARATOR '\n') AS choice_body,
+                IF(choice.body IS NULL OR choice.has_textbox, response_question.value, choice.body) AS choice_body,
                 choice.has_textbox
             FROM
                 question
@@ -111,12 +113,39 @@ class Response(models.Model):
                 choice USING (choice_id)
             WHERE
                 question.survey_id = (SELECT survey_id FROM response WHERE response_id = %s)
-            GROUP BY question_id
             ORDER BY
                 question.rank,
                 choice.rank
         """, (self.pk, self.pk))
-        return rows
+
+        # The same question can be in multiple rows because checkbox
+        # and select_multiple questions have mulitple responsequestion rows
+        # (one for each choice). We only want to return one question object for
+        # each question, so take each choice on checkbox, and select_multiple
+        # questions, and stick them into a list attached to the question object
+
+        # we need to be able to lookup a row based on the question_id
+        questions = OrderedDict()
+        # for each row, check to see if it does not exists in the dict. If so,
+        # add it to the dict. If it is a multivalued type (checkbox or
+        # select multiple), tack on a new choice_rows attribute that is
+        # appended to in the else clause
+        for row in rows:
+            if row.question_id not in questions:
+                questions[row.question_id] = row
+
+                if Question.isMultiValuedType(row.type):
+                    # this is a checkbox or select multiple type, so it has
+                    # multiple responses. So start a list of them
+                    row.choice_rows = [row.choice_body]
+            else:
+                # we will only be in this statement if the question is a
+                # checkbox or select multiple. We need to add this choice_body
+                # to the existing question object
+                existing_row = questions[row.question_id]
+                existing_row.choice_rows.append(row.choice_body)
+
+        return questions.values()
 
     class Meta:
         db_table = 'response'
