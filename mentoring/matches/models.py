@@ -172,7 +172,8 @@ class MatchManager(models.Manager):
                 mentee.mentee_id,
                 mentor.mentor_id,
                 auth_user.username AS mentor_username,
-                auth_user2.username as mentee_username
+                auth_user2.username as mentee_username,
+                match.completed_on
             FROM
                 `match`
             INNER JOIN
