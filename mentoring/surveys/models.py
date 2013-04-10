@@ -39,14 +39,14 @@ class Question(models.Model):
         (LIKERT, "Likert"),
         (HEADING, "Heading"),
     ))
-    rank = models.IntegerField()
+    rank = models.IntegerField(help_text="This determines the order of this question on the survey. The lowest numbered question appears first on the survey, the second lowest numbered question appears second on the survey, etc")
     body = models.TextField(blank=True)
-    hide_label = models.BooleanField(default=False, blank=True)
-    required = models.BooleanField(default=True, blank=True)
+    hide_label = models.BooleanField(default=False, blank=True, verbose_name="Hide body", help_text="Remove the body field from this question. You might want to do this if there is a heading right before this question")
+    required = models.BooleanField(default=True, blank=True, help_text="This field is required")
     layout = models.IntegerField(choices=(
         (NORMAL, "Normal"),
         (TABULAR, "Tabular"),
-    ))
+    ), help_text="This determines the appearance of the question on the survey.")
 
     survey = models.ForeignKey(Survey)
 

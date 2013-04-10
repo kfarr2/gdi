@@ -55,6 +55,11 @@ td.error input {
     background-color:#ff0000;
 }
 
+.helptext {
+    display:block;
+    font-size:11px;
+}
+
 .clear {
     clear:both;
 }
