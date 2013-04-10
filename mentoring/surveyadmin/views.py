@@ -1,3 +1,4 @@
+import json
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
@@ -57,6 +58,7 @@ def question(request, question_id):
         "survey": survey,
         "question": question,
         "form": form,
+        "types_with_no_choices": json.dumps(question.typesWithNoChoices())
     })
 
 

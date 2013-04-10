@@ -51,6 +51,10 @@ class Question(models.Model):
     survey = models.ForeignKey(Survey)
 
     @classmethod
+    def typesWithNoChoices(cls):
+        return [cls.HEADING, cls.TEXTBOX, cls.TEXTAREA, cls.LIKERT]
+
+    @classmethod
     def isMultiValuedType(cls, type_):
         return type_ in [cls.CHECKBOX, cls.SELECT_MULTIPLE]
 

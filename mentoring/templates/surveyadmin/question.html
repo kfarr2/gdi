@@ -6,45 +6,55 @@
     {% csrf_token %}
     {{ form.as_p }}
 
-    <h3>Choices</h3>
-    <table>
-        <tr>
-            <td>Choice ID</td>
-            {% for field in form.blankChoiceForm %}
-            <td>
-                {% if not field.is_hidden %}
-                    {{ field.label }}
-                {% endif %}
-            </td>
-            {% endfor %}
-        </tr>
-        {% for choice_form in form.choiceForms %}
-            <tr class="choice-row">
-                <td>{{ choice_form.instance.pk }}</td>
-                {% for field in choice_form %}
-                    <td class="{% if field.errors %}error{% endif %}">{{ field }}</td>
+
+    <div id="choice-subform">
+        <h3>Choices</h3>
+        <table>
+            <tr>
+                <td>Choice ID</td>
+                {% for field in form.blankChoiceForm %}
+                <td>
+                    {% if not field.is_hidden %}
+                        {{ field.label }}
+                    {% endif %}
+                </td>
                 {% endfor %}
             </tr>
-        {% endfor %}
-        <tr id="blank-choice-row" style="display:none" class="choice-row">
-            <td>&nbsp;</td>
-            {% for field in form.blankChoiceForm %}
-                <td>{{ field }}</td>
+            {% for choice_form in form.choiceForms %}
+                <tr class="choice-row">
+                    <td>{{ choice_form.instance.pk }}</td>
+                    {% for field in choice_form %}
+                        <td class="{% if field.errors %}error{% endif %}">{{ field }}</td>
+                    {% endfor %}
+                </tr>
             {% endfor %}
-        </tr>
-    </table>
-    <p><a href="#" id="add-choice">Add choice</a></p>
+            <tr id="blank-choice-row" style="display:none" class="choice-row">
+                <td>&nbsp;</td>
+                {% for field in form.blankChoiceForm %}
+                    <td>{{ field }}</td>
+                {% endfor %}
+            </tr>
+        </table>
+        <p><a href="#" id="add-choice">Add choice</a></p>
+    </div>
 
     <input type="submit" name="submit" value="Submit" />
 </form>
 <script type="text/javascript">
+var TYPES_WITH_NO_CHOICES = {{ types_with_no_choices|safe }}
 $(document).ready(function(){
+    // when the user wants to add a new choice to the form, fetch the hidden
+    // form template, copy it, and append to the form
     $('#add-choice').click(function(e){
         e.preventDefault();
         var append_to_row = $('.choice-row:last')
+        // clone the template row
         var clone = $('#blank-choice-row').clone(true, true)
         clone.attr('id', '');
-        // change the number on the name attribute of all the input elements
+
+        // change the number on the name attribute of all the input elements.
+        // this corresponds with the django form prefix attribute on the form
+        // constructor
         var input_elements = $(clone).find("input")
         var n = $(".choice-row").length;
         for(var i = 0; i < input_elements.length; i++){
@@ -55,9 +65,32 @@ $(document).ready(function(){
         }
         clone.show()
         append_to_row.after(clone);
+        // django needs to know how many choices there are on the form, so keep
+        // that updated
         $('#id_number_of_choices').val(n);
-
     });
+
+    // hide the choice subform, if the question type doesn't have choices (like
+    // a textbox field)
+    $('#id_type').on('click change focus', function(e){
+        var type_id = parseInt($(this).val());
+        var has_no_choice = false;
+
+        for(var i = 0; i < TYPES_WITH_NO_CHOICES.length; i++){
+            if(type_id == TYPES_WITH_NO_CHOICES[i]){
+                has_no_choice = true;
+                break;
+            }
+        }
+
+        if(has_no_choice){
+            $('#choice-subform').hide();
+        } else {
+            $('#choice-subform').show();
+        }
+    });
+
+    $('#id_type').click()
 });
 </script>
 {% endblock %}
