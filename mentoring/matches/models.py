@@ -411,7 +411,7 @@ def score(q):
         mentor_skill_level = int(q[q_id].value)
         # if the mentor rates himself 3 or above on the likert, it is a good match
         if mentor_skill_level >= 3:
-            score += MATCHING_SKILL[q_id]
+            score += MATCHING_SKILL.get(q_id, 0)
 
     # interests
     mentee_interests = set(q[30].values)
