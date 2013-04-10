@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 import views
 import surveys.views
 import matches.views
+import surveyadmin.views
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -31,6 +32,12 @@ urlpatterns = patterns('',
     url(r'^manage/match/?$', matches.views.match, name='manage-match'),
     url(r'^manage/ments/?$', matches.views.ments, name='manage-ments'),
     url(r'^manage/completions?$', matches.views.completions, name='manage-completions'),
+
+    # admin
+    url(r'^sadmin/?$', surveyadmin.views.admin, name='admin-surveys'),
+    url(r'^sadmin/survey/(\d+)?$', surveyadmin.views.questions, name='admin-surveys-questions'),
+    url(r'^sadmin/question/(\d+)?$', surveyadmin.views.question, name='admin-surveys-question'),
+
 
     # auth
     url(r'^accounts/login/$', 'django_cas_pdx.views.login', name='accounts-login'),

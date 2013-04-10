@@ -51,6 +51,10 @@ select[multiple] {
     color:#ff0000;
 }
 
+td.error input {
+    background-color:#ff0000;
+}
+
 .clear {
     clear:both;
 }

@@ -1,0 +1,63 @@
+{% extends "admin.html" %}
+{% block content %}
+{{ block.super }}
+<h2>Question #{{ question.pk }}</h2>
+<form method="POST" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <h3>Choices</h3>
+    <table>
+        <tr>
+            <td>Choice ID</td>
+            {% for field in form.blankChoiceForm %}
+            <td>
+                {% if not field.is_hidden %}
+                    {{ field.label }}
+                {% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% for choice_form in form.choiceForms %}
+            <tr class="choice-row">
+                <td>{{ choice_form.instance.pk }}</td>
+                {% for field in choice_form %}
+                    <td class="{% if field.errors %}error{% endif %}">{{ field }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+        <tr id="blank-choice-row" style="display:none" class="choice-row">
+            <td>&nbsp;</td>
+            {% for field in form.blankChoiceForm %}
+                <td>{{ field }}</td>
+            {% endfor %}
+        </tr>
+    </table>
+    <p><a href="#" id="add-choice">Add choice</a></p>
+
+    <input type="submit" name="submit" value="Submit" />
+</form>
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#add-choice').click(function(e){
+        e.preventDefault();
+        var append_to_row = $('.choice-row:last')
+        var clone = $('#blank-choice-row').clone(true, true)
+        clone.attr('id', '');
+        // change the number on the name attribute of all the input elements
+        var input_elements = $(clone).find("input")
+        var n = $(".choice-row").length;
+        for(var i = 0; i < input_elements.length; i++){
+            var input = $(input_elements[i]);
+            var name = input.attr('name');
+            // -1 is the place holder flag on the input name
+            input.attr('name', name.replace("-1", n - 1))
+        }
+        clone.show()
+        append_to_row.after(clone);
+        $('#id_number_of_choices').val(n);
+
+    });
+});
+</script>
+{% endblock %}

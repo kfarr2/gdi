@@ -1,0 +1,12 @@
+{% extends "admin.html" %}
+{% block content %}
+{{ block.super }}
+<h2>Questions</h2>
+{% for question in questions %}
+    {% if question.type == question.HEADING %}
+        <h3>#{{ question.pk }} <a href="{% url 'admin-surveys-question' question.pk %}">{{ question.body }}</a></h3>
+    {% else %}
+        <p>#{{ question.pk }} <a href="{% url 'admin-surveys-question' question.pk %}">{{ question.body }}</a></p>
+    {% endif %}
+{% endfor %}
+{% endblock %}
