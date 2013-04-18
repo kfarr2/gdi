@@ -133,6 +133,8 @@ class Mentee(models.Model):
         suitors = []
         for mentor in mentors:
             s = self.scoreWith(mentor)
+            if s == -1:
+                break
             # keep track of the mentor, and the score with that mentor
             suitors.append(Pair(mentor, s))
 
@@ -267,45 +269,54 @@ def buildResponseQuestionLookupTable(response_a, response_b):
     if response_a.survey_id == response_b.survey_id:
         raise ValueError("response_a.survey_id cannot be the same as response_b.survey_id")
 
-    rows = ResponseQuestion.objects.raw("""
-        SELECT
-            *,
-            IF(response_question.choice_id IS NULL, response_question.value, choice.value) AS value
-        FROM
-            response_question
-        LEFT JOIN
-            choice
-        ON
-            response_question.choice_id = choice.choice_id
-        INNER JOIN
-            question
-        ON 
-            question.question_id = response_question.question_id
-        WHERE
-            response_id = %s OR response_id = %s
-    """, (response_a.pk, response_b.pk))
+    # building the lookup table all at once drastically improves performance
+    if buildResponseQuestionLookupTable.cache == {}:
+        rows = ResponseQuestion.objects.raw("""
+            SELECT
+                response_question.response_question_id,
+                question.type,
+                response_question.question_id,
+                response_id,
+                IF(response_question.choice_id IS NULL, response_question.value, choice.value) AS value
+            FROM
+                response_question
+            LEFT JOIN
+                choice
+            ON
+                response_question.choice_id = choice.choice_id
+            INNER JOIN
+                question
+            ON 
+                question.question_id = response_question.question_id
+        """)
 
-    question_values = {}
-    # for each ResponseQuestion row, add it to the question_values map if it
-    # doesn't exist. For checkbox questions, attach a values attribute, and
-    # make it a list that includes all the values selected for that question
-    for row in rows:
-        if row.question_id not in question_values:
-            question_values[row.question_id] = row
-            # for checkbox questions, it will have a "values" attribute that is
-            # a list of values selected for that question
-            if Question.isMultiValuedType(row.type):
-                row.values = [row.value]
-        else:
-            # if we're in this branch, it MUST be a checkbox, or select
-            # multiple question, or there is a bug somewhere.
-            if Question.isMultiValuedType(row.type):
-                # append the value for this ResponseQuestion to the list of
-                # values
-                question_values[row.question_id].values.append(row.value)
+        # for each ResponseQuestion row, add it to the question_values map if it
+        # doesn't exist. For checkbox questions, attach a values attribute, and
+        # make it a list that includes all the values selected for that question
+        for row in rows:
+            question_values = buildResponseQuestionLookupTable.cache[row.response_id]
+            if row.question_id not in question_values:
+                question_values[row.question_id] = row
+                # for checkbox questions, it will have a "values" attribute that is
+                # a list of values selected for that question
+                if Question.isMultiValuedType(row.type):
+                    row.values = [row.value]
+            else:
+                # if we're in this branch, it MUST be a checkbox, or select
+                # multiple question, or there is a bug somewhere.
+                if Question.isMultiValuedType(row.type):
+                    # append the value for this ResponseQuestion to the list of
+                    # values
+                    question_values[row.question_id].values.append(row.value)
 
     # convert to q QuestionDict
-    return QuestionDict(question_values)
+    a = {}
+    a.update(buildResponseQuestionLookupTable.cache[response_a.pk])
+    a.update(buildResponseQuestionLookupTable.cache[response_b.pk])
+    return QuestionDict(a)
+
+
+buildResponseQuestionLookupTable.cache = defaultdict(dict)
 
 class QuestionDict(dict):
     """This dict will return an object of type BlankItem when the key to the

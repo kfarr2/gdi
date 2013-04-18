@@ -13,8 +13,8 @@ def manage(request):
 
 @staff_member_required
 def match(request):
-    mentor_responses = Mentor.objects.getResponses()
-    mentee_responses = Mentee.objects.getRespones()
+    mentor_responses = list(Mentor.objects.getResponses())
+    mentee_responses = list(Mentee.objects.getRespones())
 
     results = []
     # for each mentor, mentee pair, score them together
