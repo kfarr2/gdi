@@ -22,7 +22,13 @@
                 <a href="{% url "surveys-response" row.0.mentee_response.response_id %}">{{ row.0.mentee_response.user.username }}</a></td>
                 {% endif %}
                 {% for col in row %}
-                    <td class="number">{{ col.score }}</td>
+                    <td class="number">
+                    {% if col.score == -1 %}
+                        -
+                    {% else %}
+                        {{ col.score }}
+                    {% endif %}
+                    </td>
                 {% endfor %}
             </tr>
         {% endfor %}
@@ -35,19 +41,23 @@
 <ul>
 {% for mentee in unmatched_mentees %}
     <li><a href="{% url "surveys-response" mentee.response_id %}">{{ mentee.user.username }}</a>
-        <ul>
-        {% for pair in mentee.suitors %}
-            <li>
-                {{ pair.score }} {{ pair.mentor.user.username }}
-                <form method="post" action="{% url 'matches-engage' %}" class="form-button">
-                    {% csrf_token %}
-                    <input type="hidden" name="mentee_id" value="{{ mentee.pk }}" />
-                    <input type="hidden" name="mentor_id" value="{{ pair.mentor.pk }}" />
-                    <input type="submit" name="submit" value="Engage" />
-                </form>
-            </li>
-        {% endfor %}
-        </ul>
+        {% if mentee.suitors %}
+            <ul>
+            {% for pair in mentee.suitors %}
+                <li>
+                    {{ pair.score }} {{ pair.mentor.user.username }}
+                    <form method="post" action="{% url 'matches-engage' %}" class="form-button">
+                        {% csrf_token %}
+                        <input type="hidden" name="mentee_id" value="{{ mentee.pk }}" />
+                        <input type="hidden" name="mentor_id" value="{{ pair.mentor.pk }}" />
+                        <input type="submit" name="submit" value="Engage" />
+                    </form>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <em>- See response for preferred mentor</em>
+        {% endif %}
     </li>
 {% endfor %}
 </ul>

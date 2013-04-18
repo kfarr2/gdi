@@ -2,11 +2,26 @@
 {% block content %}
 {{ block.super }}
 <h2>Questions</h2>
-{% for question in questions %}
-    {% if question.type == question.HEADING %}
-        <h3>#{{ question.pk }} <a href="{% url 'admin-surveys-question' question.pk %}">{{ question.body }}</a></h3>
-    {% else %}
-        <p>#{{ question.pk }} <a href="{% url 'admin-surveys-question' question.pk %}">{{ question.body }}</a></p>
-    {% endif %}
-{% endfor %}
+<table>
+    <thead>
+        <tr>
+            <th>QID</th>
+            <th style="text-align:left">Question</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for question in questions %}
+            <tr>
+                <td style="text-align:right">#{{ question.pk }}</td>
+                <td>
+                {% if question.type == question.HEADING %}
+                    <h3><a href="{% url 'admin-surveys-question' question.pk %}">{{ question.body }}</a></h3>
+                {% else %}
+                    <a href="{% url 'admin-surveys-question' question.pk %}">{{ question.body }}</a>
+                {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}
