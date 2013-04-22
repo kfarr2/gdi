@@ -1,0 +1,8 @@
+{% if not field.question.hide_label %}
+    {{ field.label_tag }}
+{% endif %}
+<div class="select-multiple">
+    {% if debug %}{{ field.question.pk }}{% endif %}
+    {{ field.errors }}
+    {{ field }}
+</div>

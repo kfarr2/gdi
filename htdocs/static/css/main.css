@@ -29,10 +29,6 @@ textarea {
     display:block;
 }
 
-select[multiple] {
-    height:200px;
-}
-
 .left {
     text-align:left !important;
 }
@@ -49,6 +45,39 @@ select[multiple] {
 
 .error {
     color:#ff0000;
+}
+
+ul.checkbox-group {
+    list-style-type:none;
+    margin-top:0;
+    margin-left:0;
+    padding-left:0;
+    margin-bottom:0;
+}
+
+ul.checkbox-group li {
+    margin:0;
+    padding:0;
+}
+
+label.checkbox-group {
+    font-style:italic;
+}
+
+.checkbox-group label {
+    margin:0;
+    padding:0;
+}
+
+div.checkbox-group {
+    margin-left:10px;
+    margin-bottom:10px;
+}
+
+.select-multiple {
+    overflow:auto;
+    height:200px;
+    display:inline-block;
 }
 
 td.error input {

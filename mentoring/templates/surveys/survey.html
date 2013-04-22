@@ -22,10 +22,12 @@
             {% include 'surveys/_heading.html' %}
         {% elif field.question.type == Question.CHECKBOX or field.question.type == Question.RADIO %}
             {% include 'surveys/_choice.html' %}
-        {% elif field.question.type == Question.SELECT or field.question.type == Question.TEXTAREA or field.question.type == Question.TEXTBOX or field.question.type == Question.SELECT_MULTIPLE %}
+        {% elif field.question.type == Question.SELECT or field.question.type == Question.TEXTAREA or field.question.type == Question.TEXTBOX %}
             {% include 'surveys/_field.html' %}
         {% elif field.question.type == Question.LIKERT %}
             {% include 'surveys/_likert.html' %}
+        {% elif field.question.type == Question.SELECT_MULTIPLE %}
+            {% include 'surveys/_select_multiple.html' %}
         {% else %}
             <h1>Field probably not rendered properly {{ field }}</h1>
         {% endif %}

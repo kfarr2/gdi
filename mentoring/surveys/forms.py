@@ -92,7 +92,7 @@ class SurveyForm(forms.Form):
         elif question.type == Question.SELECT_MULTIPLE:
             # special field type so <optgroup> tags are used
             item = NestedModelMultipleChoiceField(
-                widget=forms.SelectMultiple, 
+                widget=CheckboxSelectMultiple(attrs={'class': 'foo'}),
                 queryset=Choice.objects.filter(question=question),
                 label=question.body,
                 required=question.required,
