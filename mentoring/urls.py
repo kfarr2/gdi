@@ -40,8 +40,8 @@ urlpatterns = patterns('',
 
 
     # auth
-    url(r'^accounts/login/$', 'django_cas_pdx.views.login', name='accounts-login'),
-    url(r'^accounts/logout/$', 'django_cas_pdx.views.logout', name='accounts-logout', kwargs={"next_page": "/"}),
+    url(r'^accounts/login/$', 'djangocas.views.login', name='accounts-login'),
+    url(r'^accounts/logout/$', 'djangocas.views.logout', name='accounts-logout', kwargs={"next_page": "/"}),
     # Examples:
     # url(r'^$', 'example.views.home', name='home'),
     # url(r'^example/', include('example.foo.urls')),
