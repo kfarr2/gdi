@@ -20,7 +20,7 @@ class SettingsManager(models.Manager):
 
 class Settings(models.Model):
     # email settings
-    send_email = models.BooleanField(default=False, blank=True)
+    send_email = models.BooleanField(default=False, blank=True, help_text="Send an email notification to the mentor and mentee when they are matched")
 
     mentor_subject = models.CharField(max_length=255, blank=True)
     mentor_body = models.TextField(blank=True)
