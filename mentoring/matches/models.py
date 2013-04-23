@@ -1,11 +1,37 @@
 from collections import defaultdict, namedtuple
 from datetime import datetime
 from django.db import models
+from django.core.mail import send_mail
 from django.contrib.auth.models import User
+from django.template import Context, Template
 from mentoring.surveys.models import ResponseQuestion, Question, Response
 
 MENTOR_SURVEY_PK = 1
 MENTEE_SURVEY_PK = 2
+
+class SettingsManager(models.Manager):
+    def default(self):
+        try:
+            instance = Settings.objects.all()[0]
+        except IndexError:
+            instance = Settings()
+            instance.save()
+        return instance
+
+class Settings(models.Model):
+    # email settings
+    send_email = models.BooleanField(default=False, blank=True)
+
+    mentor_subject = models.CharField(max_length=255, blank=True)
+    mentor_body = models.TextField(blank=True)
+
+    mentee_subject = models.CharField(max_length=255, blank=True)
+    mentee_body = models.TextField(blank=True)
+
+    class Meta:
+        db_table = 'settings'
+
+    objects = SettingsManager()
 
 class MentorManager(models.Manager):
     def get_queryset(self):
@@ -221,10 +247,13 @@ class MatchManager(models.Manager):
     def marry(self, mentor_id, mentee_id):
         """Marry the mentor with the mentee"""
         m = Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id)
+        mentor = Mentor.objects.get(pk=mentor_id)
+        mentee = Mentee.objects.get(pk=mentee_id)
         # simply set the notified_on date to something not null to flag the
         # match as married
         m.notified_on = datetime.now()
         m.save()
+        m.notify()
 
     def divorce(self, mentor_id, mentee_id):
         Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id).delete()
@@ -254,11 +283,39 @@ class Match(models.Model):
     completed_on = models.DateTimeField(null=True, default=None, blank=True)
     is_deleted = models.BooleanField(default=False, blank=True)
 
-    objects = MatchManager()
+    def notify(self):
+        settings = Settings.objects.default()
+        # don't notify if we aren't supposed to
+        if not settings.send_email:
+            return
+
+        mentee = self.mentee
+        mentor = self.mentor
+        mentor_template = Template(settings.mentor_body)
+        mentee_template = Template(settings.mentee_body)
+        mentor_subject = settings.mentor_subject
+        mentee_subject = settings.mentee_subject
+
+        c = Context({
+            'mentor_name': mentor.user.first_name + " " + mentor.user.last_name,
+            'mentee_name': mentee.user.first_name + " " + mentee.user.last_name,
+            'mentor_username': mentor.user.username,
+            'mentee_username': mentee.user.username,
+            'mentor_email': mentor.user.email,
+            'mentee_email': mentee.user.email,
+        })
+
+        mentor_body = mentor_template.render(c)
+        mentee_body = mentee_template.render(c)
+
+        # send email
+        send_mail(mentor_subject, mentor_body, 'no-reply@pdx.edu', [mentor.user.email])
+        send_mail(mentee_subject, mentee_body, 'no-reply@pdx.edu', [mentee.user.email])
 
     class Meta:
         db_table = "match"
 
+    objects = MatchManager()
 
 def buildResponseQuestionLookupTable(response_a, response_b):
     """Build a dictionary where the key is a question id, and the value is the

@@ -1,0 +1,15 @@
+{% extends 'admin.html' %}
+
+{% block page_title %}Welcome{% endblock %}
+
+{% block content %}
+{{ block.super }}
+<h3>Settings</h3>
+<form method="post" action="">
+{{ form }}
+{% csrf_token %}
+<input type="submit" name="submit" value="Submit" />
+</form>
+{% endblock %}
+
+

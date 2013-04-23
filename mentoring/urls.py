@@ -31,7 +31,8 @@ urlpatterns = patterns('',
     url(r'^manage/?$', matches.views.manage, name='manage'),
     url(r'^manage/match/?$', matches.views.match, name='manage-match'),
     url(r'^manage/ments/?$', matches.views.ments, name='manage-ments'),
-    url(r'^manage/completions?$', matches.views.completions, name='manage-completions'),
+    url(r'^manage/completions/?$', matches.views.completions, name='manage-completions'),
+    url(r'^manage/settings/?$', matches.views.settings, name='manage-settings'),
 
     # admin
     url(r'^sadmin/?$', surveyadmin.views.admin, name='admin-surveys'),

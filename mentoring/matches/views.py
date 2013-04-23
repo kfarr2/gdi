@@ -1,10 +1,12 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
+from django.contrib import messages
 from mentoring.surveys.models import Survey, Question, Response
 from mentoring.surveys.forms import SurveyForm
 from mentoring.matches.decorators import staff_member_required
-from .models import buildResponseQuestionLookupTable, score, Mentee, Mentor, Match
+from .models import buildResponseQuestionLookupTable, score, Mentee, Mentor, Match, Settings
+from .forms import SettingsForm
 
 @staff_member_required
 def manage(request):
@@ -39,6 +41,9 @@ def match(request):
     engagements = Match.objects.byMentor(married=False)
     marriages = Match.objects.byMentor(married=True)
 
+    if Settings.objects.default().send_email:
+        messages.warning(request, 'Email notifications are turned on!')
+
     return render(request, "manage/matches.html", {
         "results": results,
         "mentee_responses": mentee_responses,
@@ -69,6 +74,7 @@ def engage(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.engage(mentor_id, mentee_id)
+    messages.success(request, 'Pair engaged')
     return HttpResponseRedirect(reverse("manage-match"))
 
 @staff_member_required
@@ -76,6 +82,7 @@ def breakup(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.breakup(mentor_id, mentee_id)
+    messages.success(request, 'Pair broken up')
     return HttpResponseRedirect(reverse("manage-match"))
 
 @staff_member_required
@@ -83,6 +90,7 @@ def marry(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.marry(mentor_id, mentee_id)
+    messages.success(request, 'Pair married')
     return HttpResponseRedirect(reverse("manage-match"))
 
 @staff_member_required
@@ -90,6 +98,7 @@ def divorce(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.divorce(mentor_id, mentee_id)
+    messages.success(request, 'Pair divorced')
     return HttpResponseRedirect(reverse("manage-match"))
 
 @staff_member_required
@@ -97,6 +106,7 @@ def complete(request):
     mentor_id = request.POST.get("mentor_id")
     mentee_id = request.POST.get("mentee_id")
     Match.objects.complete(mentor_id, mentee_id)
+    messages.success(request, 'Pair completed')
     return HttpResponseRedirect(reverse("manage-match"))
 
 @staff_member_required
@@ -110,9 +120,27 @@ def remove(request, object_name):
 
     if request.POST:
         model.objects.get(pk=request.POST.get('id')).delete()
+        messages.success(request, 'Object deleted')
         return HttpResponseRedirect(reverse("manage-ments"))
     else:
         obj = model.objects.get(pk=request.GET['id'])
         return render(request, "manage/confirm.html", {
             "object": obj,
         })
+
+@staff_member_required
+def settings(request):
+    instance = Settings.objects.default()
+
+    if request.POST:
+        form = SettingsForm(request.POST, instance=instance)
+        if form.is_valid():
+            messages.success(request, 'Settings updated')
+            form.save()
+            return HttpResponseRedirect(reverse("manage-settings"))
+    else:
+        form = SettingsForm(instance=instance)
+
+    return render(request, 'manage/settings.html', {
+        'form': form,
+    })
