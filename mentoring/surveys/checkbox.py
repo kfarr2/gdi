@@ -66,9 +66,24 @@ class CheckboxRenderer(StrAndUnicode):
         return self.render()
 
     def render(self):
-        """Outputs a <ul> for this set of checkbox fields."""
-        return mark_safe(u'<ul class="checkbox-group">\n%s\n</ul>' % u'\n'.join([u'<li>%s</li>'
-                % force_unicode(w) for w in self]))
+        output = []
+        i = 0
+        for choice in self.choices:
+            if isinstance(choice[1], (list, tuple)):
+                group_label = conditional_escape(force_unicode(choice[0]))
+                output.append(u"<label class='checkbox-group'>%s</label>" % (group_label))
+                output.append(u"<div class='checkbox-group'>")
+                output.append(u'<ul class="checkbox-group">')
+                for c in choice[1]:
+                    i += 1
+                    output.append(u"<li>%s</li>" % (CheckboxInput(self.name, self.value, self.attrs.copy(), c, i)))
+                output.append(u"</ul>")
+                output.append("</div>")
+            else:
+                output.append(u"%s" % (CheckboxInput(self.name, self.value, self.attrs.copy(), choice, i)))
+            i += 1
+
+        return mark_safe("\n".join(output))
 
 class CheckboxSelectMultiple(SelectMultiple):
     """
@@ -97,23 +112,11 @@ class CheckboxSelectMultiple(SelectMultiple):
         if 'id' not in attrs:
             attrs['id'] = name
         final_attrs = self.build_attrs(attrs)
-        #choices = list(chain(self.choices, choices))
+        choices = list(chain(self.choices, choices))
         return self.renderer(name, str_values, final_attrs, choices)
 
     def render(self, name, value, attrs=None, choices=()):
-        output = []
-        choices = list(chain(self.choices, choices))
-        for choice in choices:
-            if isinstance(choice[1], (list, tuple)):
-                group_label = conditional_escape(force_unicode(choice[0]))
-                output.append(u"<label class='checkbox-group'>%s</label>" % (group_label))
-                output.append("<div class='checkbox-group'>")
-                output.append(self.get_renderer(name, value, attrs, choice[1]).render())
-                output.append("</div>")
-            else:
-                output.append(self.get_renderer(name, value, attrs, [choice]).render())
-
-        return mark_safe("\n".join(output))
+        return self.get_renderer(name, value, attrs, choices).render()
 
     def id_for_label(self, id_):
         if id_:
