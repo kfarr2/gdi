@@ -6,6 +6,7 @@ from .models import Survey, Question, Response
 from .forms import SurveyForm, MenteeSurveyForm
 from mentoring.matches.models import Mentor, Mentee, MENTOR_SURVEY_PK, MENTEE_SURVEY_PK
 from mentoring.matches.decorators import staff_member_required
+from mentoring.matches.models import Settings
 
 @login_required
 def survey(request, survey_id):
@@ -77,8 +78,9 @@ def mentor(request):
 
 @login_required
 def done(request):
+    message = Settings.objects.default().end_of_survey_message
     return render(request, "surveys/done.html", {
-
+        'message': message,
     })
 
 @staff_member_required

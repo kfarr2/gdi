@@ -28,6 +28,8 @@ class Settings(models.Model):
     mentee_subject = models.CharField(max_length=255, blank=True)
     mentee_body = models.TextField(blank=True)
 
+    end_of_survey_message = models.TextField(blank=True)
+
     class Meta:
         db_table = 'settings'
 
