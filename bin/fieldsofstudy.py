@@ -1,4 +1,9 @@
 # DO NOT RUN THIS IF YOU DON'T KNOW WHAT YOU'RE DOING
+# This will add the field of study answer choices to the 4 field of study
+# questions (question_ids in [17, 19, 49, 51]). It will delete any choices 
+# already attached to those questions. Remove the line below to run this
+# program
+exit(1)
 import os
 import sys
 root = os.path.normpath(os.path.join(os.path.dirname(__file__), "../"))

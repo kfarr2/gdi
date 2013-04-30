@@ -1,3 +1,2 @@
-source ../.env/bin/activate
-cd ..
-./manage.py clearsessions
+#!/bin/bash
+../.env/bin/python ../manage.py clearsessions
