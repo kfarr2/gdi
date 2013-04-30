@@ -5,6 +5,9 @@
 {% block content %}
 {{ block.super }}
 <h3>Scores</h3>
+<p>Below is a grid displaying the affinity score for eacho mentor and mentee pair. The mentee usernames are the rows, and the mentor usernames are the columns. The
+higher the score, the better the match. A score of - means the mentee already
+had a mentor in mind, so scoring was not performed. </p>
 <table class="data">
     <thead>
         <tr>
@@ -38,6 +41,9 @@
 <table class="panel-view"><tr><td>
 
 <h3>Suitors</h3>
+<p>These are mentees who need to be paired with a mentor. The 3 best matching mentors are listed in order.
+Click the "Engage" button to pair them.
+</p>
 <ul>
 {% for mentee in unmatched_mentees %}
     <li><a href="{% url "surveys-response" mentee.response_id %}">{{ mentee.user.username }}</a>
@@ -66,6 +72,9 @@
 <td>
 
 <h3>Engagements</h3>
+<p>You can review your pairings of mentors to mentees here. When you are
+satisifed with the pairs, you can marry them. An email <em>may</em> be sent to
+inform the pair of the match (if it is enabled in settings). You can also breakup a pair.</p>
 <ul>
 {% for mentor in engagements %}
     <li>
@@ -99,6 +108,10 @@
 </td>
 <td>
 <h3>Marriages</h3>
+<p>This displays the mentor, and all his or her active mentees. When a mentee
+has completed the mentoring program, click the "Complete" button. If the pair
+did not work out, click "Divorce". The mentee will then move back to the "Suitors"
+column.</p>
 <ul>
 {% for mentor in marriages %}
     <li>

@@ -157,6 +157,7 @@ td.error input {
 .panel-view td {
     vertical-align:top;
     width:33%;
+    padding:10px;
 }
 
 #header {
