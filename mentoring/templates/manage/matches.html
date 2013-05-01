@@ -7,7 +7,7 @@
 <h3>Scores</h3>
 <p>Below is a grid displaying the affinity score for eacho mentor and mentee pair. The mentee usernames are the rows, and the mentor usernames are the columns. The
 higher the score, the better the match. A score of - means the mentee already
-had a mentor in mind, so scoring was not performed. </p>
+had a mentor in mind, so scoring was not performed. "(full)" means the mentor already has enough mentees. </p>
 <table class="data">
     <thead>
         <tr>
@@ -28,6 +28,8 @@ had a mentor in mind, so scoring was not performed. </p>
                     <td class="number">
                     {% if col.score == -1 %}
                         -
+                    {% elif col.score == -2 %}
+                        (full)
                     {% else %}
                         {{ col.score }}
                     {% endif %}

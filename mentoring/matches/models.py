@@ -44,7 +44,9 @@ class MentorManager(models.Manager):
         mentor mentors"""
         return Mentor.objects.raw("""
             SELECT 
-                mentor.*, COUNT(`match`.mentee_id) AS number_of_mentees
+                mentor.*, 
+                # count number of mentees this mentor is married to (excluding mentees who have completed the program
+                SUM(IF(`match`.match_id IS NOT NULL AND `match`.completed_on IS NULL, 1, 0)) AS number_of_mentees
             FROM
                 mentor
             LEFT JOIN
@@ -62,15 +64,27 @@ class MentorManager(models.Manager):
     def getResponses(self):
         """Get the response object for each mentor"""
         return Response.objects.raw("""
-            SELECT 
-                * 
-            FROM 
-                mentor 
+            SELECT
+                mentor.*,
+                # count number of mentees this mentor is married to (excluding mentees who have completed the program
+                SUM(IF(`match`.match_id IS NOT NULL AND `match`.completed_on IS NULL, 1, 0)) AS number_of_mentees,
+                response.*
+            FROM
+                mentor
             INNER JOIN 
-                response 
-            USING(response_id) 
-            WHERE 
+                response
+            USING(response_id)
+            LEFT JOIN
+                `match` USING (mentor_id)
+            LEFT JOIN
+                mentee
+            ON
+                mentee.mentee_id = `match`.mentee_id AND
+                mentee.is_deleted = 0
+            WHERE
                 mentor.is_deleted = 0
+            GROUP BY mentor_id
+
         """)
 
 class Mentor(models.Model):
@@ -152,7 +166,7 @@ class Mentee(models.Model):
     def scoreWith(self, mentor):
         """Score this mentee against the passed-in mentor object"""
         q = buildResponseQuestionLookupTable(self.response, mentor.response)
-        return score(q)
+        return score(q, mentor)
 
     def findSuitors(self, mentors):
         """Return a list of namedtuples of potential mentors and their scores,
@@ -185,11 +199,11 @@ class MatchManager(models.Manager):
         """Return a list of mentors, with an added attribute called "mentees"
         containing a list of mentees the mentor is matched with"""
         where_clause = ""
-        # you can tell a couple is married by the notified_on date
+        # you can tell a couple is married by the married_on date
         if married:
-            where_clause = " match.notified_on IS NOT NULL"
+            where_clause = " match.married_on IS NOT NULL"
         else:
-            where_clause = " match.notified_on IS NULL"
+            where_clause = " match.married_on IS NULL"
 
         # you can tell a couple is completed by the completed_on date
         if completed:
@@ -251,9 +265,9 @@ class MatchManager(models.Manager):
         m = Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id)
         mentor = Mentor.objects.get(pk=mentor_id)
         mentee = Mentee.objects.get(pk=mentee_id)
-        # simply set the notified_on date to something not null to flag the
+        # simply set the married_on date to something not null to flag the
         # match as married
-        m.notified_on = datetime.now()
+        m.married_on = datetime.now()
         m.save()
         m.notify()
 
@@ -280,8 +294,8 @@ class Match(models.Model):
     match_id = models.AutoField(primary_key=True)
     mentor = models.ForeignKey(Mentor, related_name="+")
     mentee = models.ForeignKey(Mentee, related_name="+")
-    matched_on = models.DateTimeField(auto_now_add=True)
-    notified_on = models.DateTimeField(null=True, default=None, blank=True)
+    engaged_on = models.DateTimeField(auto_now_add=True)
+    married_on = models.DateTimeField(null=True, default=None, blank=True)
     completed_on = models.DateTimeField(null=True, default=None, blank=True)
     is_deleted = models.BooleanField(default=False, blank=True)
 
@@ -392,7 +406,7 @@ class QuestionDict(dict):
     def __getitem__(self, key):
         return self.get(key, self.BlankItem())
 
-def score(q):
+def score(q, mentor):
     """Using the QuestionDict from buildResponseQuestionLookupTable(), score the
     results"""
 
@@ -435,6 +449,16 @@ def score(q):
     # the mentee already has someone in mind
     if q[61].value == "yes":
         return -1
+
+    try:
+        max_mentees = int(q[71].value)
+    except TypeError:
+        max_mentees = 1
+
+    # this mentor already has too many mentees
+    if mentor.number_of_mentees >= max_mentees:
+        print mentor.number_of_mentees
+        return -2
 
     score = 0
 

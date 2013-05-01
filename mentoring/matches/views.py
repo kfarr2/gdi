@@ -24,7 +24,7 @@ def match(request):
         results.append([])
         for mentor_response in mentor_responses:
             q = buildResponseQuestionLookupTable(mentee_response, mentor_response)
-            s = score(q)
+            s = score(q, mentor_response)
 
             results[-1].append({
                 "mentor_response": mentor_response,
