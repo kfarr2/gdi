@@ -16,6 +16,7 @@ urlpatterns = patterns('',
     url(r'^surveys/mentee/?$', surveys.views.mentee, name='surveys-mentee'),
     url(r'^surveys/done/?$', surveys.views.done, name='surveys-done'),
     url(r'^surveys/response/(\d+)/?$', surveys.views.response, name='surveys-response'),
+    url(r'^surveys/report/(\d+)/?$', surveys.views.report, name='surveys-report'),
 
     # matches
     url(r'^matches/marry/?$', matches.views.marry, name='matches-marry'),

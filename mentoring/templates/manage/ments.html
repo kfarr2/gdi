@@ -6,6 +6,7 @@
 {{ block.super }}
 <h3>Manage Mentors/Mentees</h3>
 <h4>Mentees</h4>
+<p><a href="{% url 'surveys-report' 2 %}">CSV</a></p>
 <table>
 {% for mentee in mentees %}
     <tr>
@@ -16,6 +17,7 @@
 </table>
 
 <h4>Mentors</h4>
+<p><a href="{% url 'surveys-report' 1 %}">CSV</a></p>
 <table>
 {% for mentor in mentors %}
     <tr>

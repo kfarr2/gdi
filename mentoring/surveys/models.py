@@ -7,6 +7,67 @@ class Survey(models.Model):
     survey_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
 
+    def report(self):
+        rows = Question.objects.raw("""
+             SELECT
+                response.response_id,
+                auth_user.username,
+                response.created_on,
+                question.question_id,
+                question.type,
+                question.body,
+                question.hide_label,
+                question.layout,
+                response_question.value as cached_value,
+                IF(choice.body IS NULL OR choice.has_textbox, response_question.value, choice.body) AS choice_body,
+                choice.has_textbox
+            FROM
+                question
+            LEFT JOIN
+                response_question
+            ON
+                response_question.question_id = question.question_id
+            LEFT JOIN 
+                (
+                SELECT * FROM response INNER JOIN (SELECT MAX(response_id) as response_id FROM response WHERE survey_id = %s GROUP BY user_id) max_response_ids USING(response_id)
+                ) response
+            ON response_question.response_id = response.response_id
+            LEFT JOIN 
+                auth_user 
+            ON response.user_id = auth_user.id
+            LEFT JOIN
+                choice USING (choice_id)
+            WHERE
+                question.survey_id = %s
+            ORDER BY
+                response.response_id,
+                question.rank,
+                choice.rank
+        """, (self.pk, self.pk))
+
+        responses = OrderedDict() 
+        for row in rows:
+            if row.response_id is None:
+                continue
+            if row.response_id not in responses:
+                responses[row.response_id] = OrderedDict()
+
+            if row.question_id not in responses[row.response_id]:
+                responses[row.response_id][row.question_id] = row
+
+                if Question.isMultiValuedType(row.type):
+                    # this is a checkbox or select multiple type, so it has
+                    # multiple responses. So start a list of them
+                    row.choice_rows = [row.choice_body]
+            else:
+                # we will only be in this statement if the question is a
+                # checkbox or select multiple. We need to add this choice_body
+                # to the existing question object
+                existing_row = responses[row.response_id][row.question_id]
+                existing_row.choice_rows.append(row.choice_body)
+
+        return responses.values()
+
     class Meta:
         db_table = "survey"
 
