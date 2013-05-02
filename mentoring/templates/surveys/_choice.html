@@ -5,7 +5,8 @@
 {% if debug %}{{ field.question.pk }}{% endif %}
 {% for choice in field.choices %}
     {% if choice.textbox %}
-        <label class="radio">{{ choice.tag }} {{ choice.choice_label }} {{ choice.textbox }} {{ choice.textbox.errors }}</label>
+        <label class="radio" style="display:inline">{{ choice.tag }} {{ choice.choice_label }}</label> 
+        <label style="display:inline">{{ choice.textbox }} {{ choice.textbox.errors }}</label>
     {% else %}
         <label class="radio">{{ choice.tag }} {{ choice.choice_label }}</label>
     {% endif %}

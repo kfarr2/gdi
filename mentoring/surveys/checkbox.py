@@ -67,22 +67,31 @@ class CheckboxRenderer(StrAndUnicode):
 
     def render(self):
         output = []
-        i = 0
-        for choice in self.choices:
-            if isinstance(choice[1], (list, tuple)):
-                group_label = conditional_escape(force_unicode(choice[0]))
-                output.append(u"<label class='checkbox-group'>%s</label>" % (group_label))
-                output.append(u"<div class='checkbox-group'>")
-                output.append(u'<ul class="checkbox-group">')
-                for c in choice[1]:
-                    i += 1
-                    output.append(u"<li>%s</li>" % (CheckboxInput(self.name, self.value, self.attrs.copy(), c, i)))
-                output.append(u"</ul>")
-                output.append("</div>")
-            else:
-                output.append(u"%s" % (CheckboxInput(self.name, self.value, self.attrs.copy(), choice, i)))
-            i += 1
+        # init
+        self.i = 0
+        output.append("<ul>")
 
+        # recursively build up the list of nested checkboxinput items
+        def markup(choices, output, i):
+            for choice in choices:
+                # this choice has a sublist of choices
+                if isinstance(choice[1], (list, tuple)):
+                    # build up the heading for the sublist
+                    group_label = conditional_escape(force_unicode(choice[0]))
+                    output.append(u"<li><span class='checkbox-group-heading'>%s</span>" % (group_label))
+                    output.append(u'<ul class="checkbox-group">')
+                    # now build the list of checkboxinputs
+                    i = markup(choice[1], output, i)
+                    # close off the sublist
+                    output.append(u"</ul></li>")
+                else:
+                    output.append(u"<li>%s</li>" % (CheckboxInput(self.name, self.value, self.attrs.copy(), choice, i)))
+                    i += 1
+
+            return i
+
+        markup(self.choices, output, 0)
+        output.append("</ul>")
         return mark_safe("\n".join(output))
 
 class CheckboxSelectMultiple(SelectMultiple):

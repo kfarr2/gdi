@@ -269,32 +269,37 @@ class NestedModelMultipleChoiceField(forms.ModelMultipleChoiceField):
 
     def nestChoices(self, queryset):
         choice_lookup = {}
-        choices = []
         qs = list(queryset)
         # index all the choices by pk
         for choice in qs:
             choice_lookup[choice.pk] = choice
 
-        # index all the subchoices by pk
-        subchoice_lookup = {}
+        # recursively build up the list of choices
+        def buildChoices(choice, choices, used_choices):
+            # base case: we already handled this choice
+            if choice.pk in used_choices:
+                return
+            # keep track of the choices we have handled (see base case)
+            used_choices[choice.pk] = True
 
-        for choice in qs:
-            # this choice has choice choices because it starts with an [
-            # character
-            if choice.value.startswith("["): 
-                # load the PKs of the subitems based on this choice's value
-                items = json.loads(choice.value)
-                # add all the subchoice PKs to the subchoice lookup table
-                for pk in items: subchoice_lookup[pk] = True
-
-                # add all the subchoices to this choice
-                subchoices = [(choice_lookup[k].pk, choice_lookup[k].body) for k in items]
-                choices.append((choice.body, subchoices))
-            elif choice.pk not in subchoice_lookup:
-                # this is just a regular, non-nested choice, so there is
-                # nothing fancy to do
+            if not choice.value.startswith('['):
+                # this is just a simple choice, so add it to the list of choices
                 choices.append((choice.pk, choice.body))
+            else:
+                # this choice has subchoices, so we need to load those up
+                choice_ids = json.loads(choice.value)
+                subchoices = []
+                for choice_id in choice_ids:
+                    # recursively build up the subchoices
+                    buildChoices(choice_lookup[choice_id], subchoices, used_choices)
+                # now add all those subchoices to this choice
+                choices.append((choice.body, subchoices))
 
+        choices = []
+        used_choices = {}
+        for choice in qs:
+            buildChoices(choice, choices, used_choices)
+                
         return choices
 
 class BlankWidget(forms.widgets.Widget):
