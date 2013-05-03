@@ -1,3 +1,4 @@
+from ordereddict import OrderedDict 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -5,6 +6,7 @@ from django.contrib import messages
 from mentoring.surveys.models import Survey, Question, Response
 from mentoring.surveys.forms import SurveyForm
 from mentoring.matches.decorators import staff_member_required
+from mentoring.utils import UnicodeWriter
 from .models import buildResponseQuestionLookupTable, score, Mentee, Mentor, Match, Settings
 from .forms import SettingsForm
 
@@ -144,3 +146,49 @@ def settings(request):
     return render(request, 'manage/settings.html', {
         'form': form,
     })
+
+
+@staff_member_required
+def report(request):
+    # someone cleverer than me could do this all in one query
+    mentors = list(Mentor.objects.all().select_related('user'))
+    mentees = list(Mentee.objects.all().select_related('user'))
+    matches = list(Match.objects.all().order_by('engaged_on', 'married_on', 'completed_on'))
+
+    # index everything by id
+    mentor_lookup = OrderedDict()
+    for mentor in mentors:
+        mentor.mentees = []
+        mentor.match_info = []
+        mentor_lookup[mentor.pk] = mentor
+
+    mentee_lookup = OrderedDict()
+    for mentee in mentees:
+        mentee_lookup[mentee.pk] = mentee
+
+    for match in matches:
+        mentor = mentor_lookup[match.mentor_id]
+        mentor.mentees.append(mentee_lookup[match.mentee_id])
+        mentor.match_info.append(match)
+
+    http_response = HttpResponse()
+    http_response = HttpResponse(content_type='text/csv')
+    http_response['Content-Disposition'] = 'attachment; filename="report.csv"' 
+
+    writer = UnicodeWriter(http_response)
+    writer.writerow(['Mentor Username', 'Mentee Username', 'Engaged On', 'Married On', 'Completed On'])
+
+    for k, mentor in mentor_lookup.items():
+        writer.writerow([mentor.user.username])
+        for i, mentee in enumerate(mentor.mentees):
+            match_info = mentor.match_info[i]
+            engaged_on = match_info.engaged_on or ''
+            if engaged_on: engaged_on = engaged_on.strftime("%Y-%m-%d %H:%M:%S")
+            married_on = match_info.married_on or ''
+            if married_on: married_on = married_on.strftime("%Y-%m-%d %H:%M:%S")
+            completed_on = match_info.completed_on or ''
+            if completed_on: completed_on = completed_on.strftime("%Y-%m-%d %H:%M:%S")
+            writer.writerow(["", mentee.user.username, engaged_on, married_on, completed_on])
+
+    return http_response
+

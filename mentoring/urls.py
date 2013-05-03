@@ -24,6 +24,7 @@ urlpatterns = patterns('',
     url(r'^matches/engage/?$', matches.views.engage, name='matches-engage'),
     url(r'^matches/breakup/?$', matches.views.breakup, name='matches-breakup'),
     url(r'^matches/complete/?$', matches.views.complete, name='matches-complete'),
+    url(r'^matches/report/?$', matches.views.report, name='matches-report'),
     # mentors and mentee administration
     url(r'^(mentors)/delete/?$', matches.views.remove, name='mentors-delete'),
     url(r'^(mentees)/delete/?$', matches.views.remove, name='mentees-delete'),
