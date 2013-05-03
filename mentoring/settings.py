@@ -8,6 +8,8 @@ HOME_DIR = os.path.normpath(os.path.join(PROJECT_DIR, '../'))
 LDAP_URL = "ldap://ldap.oit.pdx.edu"
 LDAP_BASE_DN = 'dc=pdx,dc=edu'
 
+SERVER_EMAIL = 'django@pdx.edu'
+
 # allow the use of wildcards in the INTERAL_IPS setting
 class IPList(list):
     # do a unix-like glob match

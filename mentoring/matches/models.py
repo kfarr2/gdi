@@ -489,8 +489,15 @@ def score(q, mentor):
         score += MATCHING_GENDER_ONE_SIDED
 
     # check availability
-    mentee_availability = int(q[53].value)
-    mentor_availability = int(q[21].value)
+    try:
+        mentee_availability = int(q[53].value)
+    except (ValueError, TypeError):
+        mentee_availability = 1
+
+    try:
+        mentor_availability = int(q[21].value)
+    except (ValueError, TypeError):
+        mentor_availability = 1
     # if the mentor can be available the same amount or more than the mentee
     # wants, it is a good match
     if mentor_availability >= mentee_availability:
