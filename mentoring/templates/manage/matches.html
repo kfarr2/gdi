@@ -5,7 +5,7 @@
 {% block content %}
 {{ block.super }}
 <h3>Scores</h3>
-<p>Below is a grid displaying the affinity score for eacho mentor and mentee pair. The mentee usernames are the rows, and the mentor usernames are the columns. The
+<p>Below is a grid displaying the affinity score for each mentor and mentee pair. The mentee usernames are the rows, and the mentor usernames are the columns. The
 higher the score, the better the match. A score of - means the mentee already
 had a mentor in mind, so scoring was not performed. "(full)" means the mentor already has enough mentees. </p>
 <table class="data">
@@ -42,9 +42,9 @@ had a mentor in mind, so scoring was not performed. "(full)" means the mentor al
 
 <table class="panel-view"><tr><td>
 
-<h3>Suitors</h3>
+<h3>Potential Matches</h3>
 <p>These are mentees who need to be paired with a mentor. The 3 best matching mentors are listed in order.
-Click the "Engage" button to pair them.
+Click the "Recommend" button to pair them.
 </p>
 <ul>
 {% for mentee in unmatched_mentees %}
@@ -58,7 +58,7 @@ Click the "Engage" button to pair them.
                         {% csrf_token %}
                         <input type="hidden" name="mentee_id" value="{{ mentee.pk }}" />
                         <input type="hidden" name="mentor_id" value="{{ pair.mentor.pk }}" />
-                        <input type="submit" name="submit" value="Engage" />
+                        <input type="submit" name="submit" value="Recommend" />
                     </form>
                 </li>
             {% endfor %}
@@ -73,9 +73,9 @@ Click the "Engage" button to pair them.
 </td>
 <td>
 
-<h3>Engagements</h3>
+<h3>Recommended Matches</h3>
 <p>You can review your pairings of mentors to mentees here. When you are
-satisifed with the pairs, you can marry them. An email <em>may</em> be sent to
+satisifed with the pairs, you can finalize them. An email <em>may</em> be sent to
 inform the pair of the match (if it is enabled in settings). You can also breakup a pair.</p>
 <ul>
 {% for mentor in engagements %}
@@ -89,7 +89,7 @@ inform the pair of the match (if it is enabled in settings). You can also breaku
                     {% csrf_token %}
                     <input type="hidden" name="mentee_id" value="{{ mentee.mentee_id }}" />
                     <input type="hidden" name="mentor_id" value="{{ mentee.mentor_id }}" />
-                    <input type="submit" name="submit" value="Marry" />
+                    <input type="submit" name="submit" value="Finalize" />
                 </form>
 
                 <form method="post" action="{% url 'matches-breakup' %}" class="form-button">
@@ -103,16 +103,16 @@ inform the pair of the match (if it is enabled in settings). You can also breaku
         </ul>
     </li>
 {% empty %}
-    <li>No engagements</li>
+    <li>No recommended matches</li>
 {% endfor %}
 </ul>
 
 </td>
 <td>
-<h3>Marriages</h3>
+<h3>Final Matches</h3>
 <p>This displays the mentor, and all his or her active mentees. When a mentee
 has completed the mentoring program, click the "Complete" button. If the pair
-did not work out, click "Divorce". The mentee will then move back to the "Suitors"
+did not work out, click "Revert". The mentee will then move back to the "Potential Matches"
 column.</p>
 <ul>
 {% for mentor in marriages %}
@@ -126,7 +126,7 @@ column.</p>
                     {% csrf_token %}
                     <input type="hidden" name="mentee_id" value="{{ mentee.mentee_id }}" />
                     <input type="hidden" name="mentor_id" value="{{ mentee.mentor_id }}" />
-                    <input type="submit" name="submit" value="Divorce" />
+                    <input type="submit" name="submit" value="Revert" />
                 </form>
 
                 <form method="post" action="{% url 'matches-complete' %}" class="form-button">
@@ -140,7 +140,7 @@ column.</p>
         </ul>
     </li>
 {% empty %}
-    <li>No marriages</li>
+    <li>No final matches</li>
 {% endfor %}
 </ul>
 

@@ -45,15 +45,29 @@ class Survey(models.Model):
                 choice.rank
         """, (self.pk, self.pk))
 
+        # we get all the responses in one big query. We need to normalize the
+        # data. We build up an OrderedDict of the responses, where the key is
+        # the response_id, and the value is an OrderedDict of questions, where
+        # the key is the question_id, and the row is the Question object. If
+        # the question is a multi-valued type, we tack on the choice_rows
+        # attribute, which is an array of answer choices that correspond to the
+        # question multi-valued type).
         responses = OrderedDict() 
         for row in rows:
+            # we did left joins, which means a null response_id is a possibility
             if row.response_id is None:
                 continue
-            if row.response_id not in responses:
-                responses[row.response_id] = OrderedDict()
 
-            if row.question_id not in responses[row.response_id]:
-                responses[row.response_id][row.question_id] = row
+            response = responses.setdefault(row.response_id, OrderedDict())
+
+            # The same question can be in multiple rows because checkbox
+            # and select_multiple questions have mulitple responsequestion rows
+            # (one for each choice). We only want to return one question object for
+            # each question, so take each choice on checkbox, and select_multiple
+            # questions, and stick them into a list attached to the question object
+
+            if row.question_id not in response:
+                response[row.question_id] = row
 
                 if Question.isMultiValuedType(row.type):
                     # this is a checkbox or select multiple type, so it has
@@ -63,8 +77,8 @@ class Survey(models.Model):
                 # we will only be in this statement if the question is a
                 # checkbox or select multiple. We need to add this choice_body
                 # to the existing question object
-                existing_row = responses[row.response_id][row.question_id]
-                existing_row.choice_rows.append(row.choice_body)
+                question = response[row.question_id]
+                question.choice_rows.append(row.choice_body)
 
         return responses.values()
 
