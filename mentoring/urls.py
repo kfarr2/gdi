@@ -16,6 +16,7 @@ urlpatterns = patterns('',
     url(r'^surveys/mentee/?$', surveys.views.mentee, name='surveys-mentee'),
     url(r'^surveys/done/?$', surveys.views.done, name='surveys-done'),
     url(r'^surveys/response/(\d+)/?$', surveys.views.response, name='surveys-response'),
+    url(r'^surveys/report/(\d+)/?$', surveys.views.report, name='surveys-report'),
 
     # matches
     url(r'^matches/marry/?$', matches.views.marry, name='matches-marry'),
@@ -23,6 +24,7 @@ urlpatterns = patterns('',
     url(r'^matches/engage/?$', matches.views.engage, name='matches-engage'),
     url(r'^matches/breakup/?$', matches.views.breakup, name='matches-breakup'),
     url(r'^matches/complete/?$', matches.views.complete, name='matches-complete'),
+    url(r'^matches/report/?$', matches.views.report, name='matches-report'),
     # mentors and mentee administration
     url(r'^(mentors)/delete/?$', matches.views.remove, name='mentors-delete'),
     url(r'^(mentees)/delete/?$', matches.views.remove, name='mentees-delete'),

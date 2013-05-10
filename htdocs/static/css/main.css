@@ -73,40 +73,29 @@ textarea {
     color:#ff0000;
 }
 
-ul.checkbox-group {
-    list-style-type:none;
-    margin-top:0;
-    margin-left:0;
-    padding-left:0;
-    margin-bottom:0;
-}
-
-ul.checkbox-group li {
-    margin:0;
-    padding:0;
-}
-
-label.checkbox-group {
-    font-style:italic;
-}
-
-.checkbox-group label {
-}
-
-div.checkbox-group {
-    margin-left:10px;
-    margin-bottom:10px;
-}
-
 .select-multiple {
     overflow:auto;
     height:200px;
     width:420px;
 }
 
+.select-multiple ul {
+    list-style-type:none;
+    margin:0;
+    padding:0;
+}
+
 .select-multiple label {
     margin:0;
     padding:0;
+}
+
+.select-multiple ul.checkbox-group {
+    margin-left:10px;
+}
+
+.checkbox-group-heading {
+    font-style:italic;
 }
 
 td.error input {

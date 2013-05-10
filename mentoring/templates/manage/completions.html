@@ -11,7 +11,15 @@
         {{ mentor.mentor_username }}
         <ul>
         {% for mentee in mentor.mentees %}
-            <li>{{ mentee.mentee_username }} <em>(completed {{ mentor.completed_on }})</em></li>
+            <li>
+                {{ mentee.mentee_username }} <em>(completed {{ mentor.completed_on }})</em>
+                <form method="post" action="{% url 'matches-breakup' %}" class="form-button">
+                    {% csrf_token %}
+                    <input type="hidden" name="mentor_id" value="{{mentor.mentor_id}}" />
+                    <input type="hidden" name="mentee_id" value="{{mentee.mentee_id}}" />
+                    <input type="submit" name='submit' value="Breakup" />
+                </form>
+            </li>
         {% endfor %}
         </ul>
     </li>

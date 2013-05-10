@@ -7,6 +7,7 @@ from .forms import SurveyForm, MenteeSurveyForm
 from mentoring.matches.models import Mentor, Mentee, MENTOR_SURVEY_PK, MENTEE_SURVEY_PK
 from mentoring.matches.decorators import staff_member_required
 from mentoring.matches.models import Settings
+from mentoring.utils import UnicodeWriter
 
 @login_required
 def survey(request, survey_id):
@@ -92,3 +93,38 @@ def response(request, response_id):
         'report': report,
         'Question': Question,
     })
+
+@staff_member_required
+def report(request, survey_id):
+    survey = get_object_or_404(Survey, pk=survey_id)
+    responses = list(survey.report())
+    questions = list(Question.objects.filter(survey=survey).exclude(type=Question.HEADING))
+
+    http_response = HttpResponse()
+    http_response = HttpResponse(content_type='text/csv')
+    http_response['Content-Disposition'] = 'attachment; filename="%s.csv"' % (survey.name)
+
+    writer = UnicodeWriter(http_response)
+    header = ["username", "submitted on"] + [question.body for question in questions]
+    writer.writerow(header)
+
+    for response in responses:
+        csv_row = []
+        for i, question in enumerate(questions):
+            row = response.get(question.pk, None)
+            if i == 0:
+                csv_row.append(row.username)
+                csv_row.append(row.created_on.strftime("%Y-%m-%d %H:%M:%S"))
+
+            if row is None:
+                csv_row.append("!")
+                continue
+
+            if hasattr(row, 'choice_rows'):
+                csv_row.append(",".join(row.choice_rows))
+            else:
+                csv_row.append(row.choice_body)
+        writer.writerow(csv_row)
+
+    return http_response
+
