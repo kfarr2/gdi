@@ -13,7 +13,7 @@ had a mentor in mind, so scoring was not performed. "(full)" means the mentor al
         <tr>
             <td>&nbsp;</td>
             {% for mentor_response in mentor_responses %}
-                <td><a href="{% url "surveys-response" mentor_response.response_id %}">{{ mentor_response.user.username }}</a></td>
+                <td><a href="{% url "surveys-response" mentor_response.response_id %}">{{ mentor_response.user.get_full_name }}</a></td>
             {% endfor %}
         </tr>
     </thead>
@@ -22,7 +22,7 @@ had a mentor in mind, so scoring was not performed. "(full)" means the mentor al
             <tr>
                 <td>
                 {% if row|length %}
-                <a href="{% url "surveys-response" row.0.mentee_response.response_id %}">{{ row.0.mentee_response.user.username }}</a></td>
+                <a href="{% url "surveys-response" row.0.mentee_response.response_id %}">{{ row.0.mentee_response.user.get_full_name }}</a></td>
                 {% endif %}
                 {% for col in row %}
                     <td class="number">
@@ -48,12 +48,12 @@ Click the "Recommend" button to pair them.
 </p>
 <ul>
 {% for mentee in unmatched_mentees %}
-    <li><a href="{% url "surveys-response" mentee.response_id %}">{{ mentee.user.username }}</a>
+    <li><a href="{% url "surveys-response" mentee.response_id %}">{{ mentee.user.get_full_name }}</a>
         {% if mentee.suitors %}
             <ul>
             {% for pair in mentee.suitors %}
                 <li>
-                    {{ pair.score }} {{ pair.mentor.user.username }}
+                    {{ pair.score }} {{ pair.mentor.user.get_full_name }}
                     <form method="post" action="{% url 'matches-engage' %}" class="form-button">
                         {% csrf_token %}
                         <input type="hidden" name="mentee_id" value="{{ mentee.pk }}" />
@@ -80,10 +80,10 @@ inform the pair of the match (if it is enabled in settings). You can also breaku
 <ul>
 {% for mentor in engagements %}
     <li>
-        {{ mentor.mentor_username }}
+        {{ mentor.mentor_name }}
         <ul>
         {% for mentee in mentor.mentees %}
-            <li>{{ mentee.mentee_username }}
+            <li>{{ mentee.mentee_name }}
                 <br />
                 <form method="post" action="{% url 'matches-marry' %}" class="form-button">
                     {% csrf_token %}
@@ -117,10 +117,10 @@ column.</p>
 <ul>
 {% for mentor in marriages %}
     <li>
-        {{ mentor.mentor_username }}
+        {{ mentor.mentor_name }}
         <ul>
         {% for mentee in mentor.mentees %}
-            <li>{{ mentee.mentee_username }}
+            <li>{{ mentee.mentee_name }}
                 <br />
                 <form method="post" action="{% url 'matches-divorce' %}" class="form-button">
                     {% csrf_token %}

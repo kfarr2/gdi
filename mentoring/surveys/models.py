@@ -12,6 +12,7 @@ class Survey(models.Model):
              SELECT
                 response.response_id,
                 auth_user.username,
+                CONCAT(auth_user.first_name, ' ', auth_user.last_name) AS name,
                 response.created_on,
                 question.question_id,
                 question.type,

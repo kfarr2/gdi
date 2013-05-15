@@ -176,10 +176,10 @@ def report(request):
     http_response['Content-Disposition'] = 'attachment; filename="report.csv"' 
 
     writer = UnicodeWriter(http_response)
-    writer.writerow(['Mentor Username', 'Mentee Username', 'Engaged On', 'Married On', 'Completed On'])
+    writer.writerow(['Mentor Name', 'Mentor Username', 'Mentee Name', 'Mentee Username', 'Matched On', 'Finalized On', 'Completed On'])
 
     for k, mentor in mentor_lookup.items():
-        writer.writerow([mentor.user.username])
+        writer.writerow([mentor.user.get_full_name(), mentor.user.username])
         for i, mentee in enumerate(mentor.mentees):
             match_info = mentor.match_info[i]
             engaged_on = match_info.engaged_on or ''
@@ -188,7 +188,7 @@ def report(request):
             if married_on: married_on = married_on.strftime("%Y-%m-%d %H:%M:%S")
             completed_on = match_info.completed_on or ''
             if completed_on: completed_on = completed_on.strftime("%Y-%m-%d %H:%M:%S")
-            writer.writerow(["", mentee.user.username, engaged_on, married_on, completed_on])
+            writer.writerow(["", "", mentee.user.get_full_name(), mentee.user.username, engaged_on, married_on, completed_on])
 
     return http_response
 

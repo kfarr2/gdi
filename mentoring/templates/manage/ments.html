@@ -13,7 +13,7 @@
 <table>
 {% for mentee in mentees %}
     <tr>
-        <td><a href="{% url 'surveys-response' mentee.response_id %}">{{ mentee.user.username }}</a></td>
+        <td><a href="{% url 'surveys-response' mentee.response_id %}">{{ mentee.user.get_full_name }}</a></td>
         <td><a href="{% url 'mentees-delete' 'mentees' %}?id={{ mentee.pk }}">Delete</a></td>
     </tr>
 {% endfor %}
@@ -24,7 +24,7 @@
 <table>
 {% for mentor in mentors %}
     <tr>
-        <td><a href="{% url 'surveys-response' mentor.response_id %}">{{ mentor.user.username }}</a></td>
+        <td><a href="{% url 'surveys-response' mentor.response_id %}">{{ mentor.user.get_full_name }}</a></td>
         <td><a href="{% url 'mentors-delete' 'mentors' %}?id={{ mentor.pk }}">Delete</a></td>
     </tr>
 {% endfor %}

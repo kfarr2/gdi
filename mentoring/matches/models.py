@@ -217,6 +217,8 @@ class MatchManager(models.Manager):
                 mentor.mentor_id,
                 auth_user.username AS mentor_username,
                 auth_user2.username as mentee_username,
+                CONCAT(auth_user.first_name, ' ', auth_user.last_name) AS mentor_name,
+                CONCAT(auth_user2.first_name, ' ', auth_user2.last_name) AS mentee_name,
                 match.completed_on
             FROM
                 `match`

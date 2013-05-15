@@ -105,7 +105,7 @@ def report(request, survey_id):
     http_response['Content-Disposition'] = 'attachment; filename="%s.csv"' % (survey.name)
 
     writer = UnicodeWriter(http_response)
-    header = ["username", "submitted on"] + [question.body for question in questions]
+    header = ["name", "username", "submitted on"] + [question.body for question in questions]
     writer.writerow(header)
 
     for response in responses:
@@ -113,6 +113,7 @@ def report(request, survey_id):
         for i, question in enumerate(questions):
             row = response.get(question.pk, None)
             if i == 0:
+                csv_row.append(row.name)
                 csv_row.append(row.username)
                 csv_row.append(row.created_on.strftime("%Y-%m-%d %H:%M:%S"))
 
