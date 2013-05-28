@@ -2,25 +2,32 @@
 {% block content %}
 {{ block.super }}
 <script type="text/javascript">
+/* This is used to toggle the rest of the questions on the mentee form
+ * depending on the user's response to question 62 and 61 
+ */
 function showQuestions(){
+    // this is the "have you already contacted this person question
     var dependent_question = $('#question_62');
+    // these are the rest of the questions on the form
     var siblings = $('#question_62 ~ .question-block');
-    var yes_checked = $('input[name="question_61"]:first').prop('checked')
-    var no_checked = $('input[name="question_61"]:last').prop('checked')
-    if(yes_checked){
+    var has_mentor_in_mind = $('input[name="question_61"]:first').prop('checked')
+    var has_contacted_mentor = $('input[name="question_62"]:first').prop('checked')
+
+    if(has_mentor_in_mind){
         dependent_question.show();
-        siblings.hide();
-    } else if(no_checked){
-        dependent_question.hide();
-        siblings.show();
     } else {
         dependent_question.hide();
+    }
+
+    if(has_mentor_in_mind && has_contacted_mentor){
         siblings.hide();
+    } else {
+        siblings.show();
     }
 }
 
 $(document).ready(function(){
-    $('input[name="question_61"]').on('click change focus blur', showQuestions);
+    $('input[name="question_61"], input[name="question_62"]').on('click change focus blur', showQuestions);
     showQuestions();
 });
 </script>

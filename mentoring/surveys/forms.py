@@ -244,15 +244,19 @@ class MenteeSurveyForm(SurveyForm):
                 self._errors["question_62"] = self.error_class(['This field is required'])
                 cleaned.pop("question_62", None)
 
-            # make all the fields after question_62 not required
-            start_removing_errors = False
-            for name, field in self.fields.items():
-                if name.startswith("question_"):
-                    if start_removing_errors:
-                        self._errors.pop(name, None)
-                        cleaned.pop(name, None)
-                    if name == "question_62":
-                        start_removing_errors = True
+            # make all the fields after question_62 not required, if they
+            # answered yes to "have you already contacted this person"
+            choice = cleaned.get("question_62")
+            remove_required_fields = choice is not None and choice.value.strip().lower() == "yes"
+            if remove_required_fields:
+                start_removing_errors = False
+                for name, field in self.fields.items():
+                    if name.startswith("question_"):
+                        if start_removing_errors:
+                            self._errors.pop(name, None)
+                            cleaned.pop(name, None)
+                        if name == "question_62":
+                            start_removing_errors = True
         elif choice is not None:
             # remove this question since the answer doesn't matter
             cleaned.pop("question_62", None)
