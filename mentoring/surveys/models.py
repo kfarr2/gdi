@@ -232,7 +232,7 @@ class Response(models.Model):
 
 class ResponseQuestion(models.Model):
     response_question_id = models.AutoField(primary_key=True)
-    value = models.CharField(max_length=255)
+    value = models.TextField()
 
     response = models.ForeignKey(Response)
     question = models.ForeignKey(Question)
