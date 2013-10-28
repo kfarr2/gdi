@@ -1,6 +1,8 @@
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+NOTIFICATION_EMAIL = 'patrickv@pdx.edu'
+
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
 )

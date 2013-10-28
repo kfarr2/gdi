@@ -1,6 +1,8 @@
 import json
 from django import forms
 from django.forms.widgets import RadioSelect
+from django.conf import settings as SETTINGS
+from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from .models import Question, Choice, Response, ResponseQuestion
 from .checkbox import CheckboxSelectMultiple
@@ -179,12 +181,17 @@ class SurveyForm(forms.Form):
 
         return cleaned
 
+    def _send_notification(self, user):
+        send_mail("GDI Mentoring Survey Notification", "This is just a notice to inform you that %s has taken a survey, which you may view at http://gdimentor.rc.pdx.edu/manage" % (user.username), 'django@pdx.edu', [SETTINGS.NOTIFICATION_EMAIL])
+
     def save(self, user):
         cleaned = self.cleaned_data
         response = Response()
         response.user = user
         response.survey = self.survey
         response.save()
+
+        self._send_notification(user)
 
         # create all the ResponseQuestion objects
         for k, field in self.fields.items():
