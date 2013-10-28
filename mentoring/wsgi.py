@@ -19,7 +19,6 @@ import sys
 
 root = os.path.normpath(os.path.join(os.path.dirname(__file__), "../"))
 sys.path.append(root)
-site.addsitedir(os.path.join(root, ".env/lib/python2.6/site-packages"))
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mentoring.settings")
 
