@@ -49,23 +49,24 @@ Click the "Recommend" button to pair them.
 <ul>
 {% for mentee in unmatched_mentees %}
     <li><a href="{% url "surveys-response" mentee.response_id %}">{{ mentee.user.get_full_name }}</a>
-        {% if mentee.suitors %}
-            <ul>
-            {% for pair in mentee.suitors %}
-                <li>
-                    {{ pair.score }} {{ pair.mentor.user.get_full_name }}
-                    <form method="post" action="{% url 'matches-engage' %}" class="form-button">
-                        {% csrf_token %}
-                        <input type="hidden" name="mentee_id" value="{{ mentee.pk }}" />
-                        <input type="hidden" name="mentor_id" value="{{ pair.mentor.pk }}" />
-                        <input type="submit" name="submit" value="Recommend" />
-                    </form>
-                </li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <em>- See response for preferred mentor</em>
-        {% endif %}
+        <form method="post" action="{% url 'matches-engage' %}">
+            {% csrf_token %}
+            <input type="hidden" name="mentee_id" value="{{ mentee.pk }}" />
+            <select name="mentor_id" size="5">
+                {% if mentee.suitors %}
+                    <optgroup label="Recommended">
+                        {% for pair in mentee.suitors %}
+                            <option value="{{ pair.mentor.pk }}">{{ pair.score }} {{ pair.mentor.user.get_full_name }}</option>
+                        {% endfor %}
+                    </optgroup>
+                {% endif %}
+
+                {% for m in mentors %}
+                    <option value="{{ m.pk }}">{{ m.user.get_full_name }}</option>
+                {% endfor %}
+            </select>
+            <input type="submit" name="submit" value="Recommend" />
+        </form>
     </li>
 {% endfor %}
 </ul>

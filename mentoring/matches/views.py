@@ -46,6 +46,7 @@ def match(request):
     if Settings.objects.default().send_email:
         messages.warning(request, 'Email notifications are turned on!')
 
+    mentors = list(Mentor.objects.all().select_related("user").order_by("user__last_name", "user__first_name"))
     return render(request, "manage/matches.html", {
         "results": results,
         "mentee_responses": mentee_responses,
@@ -53,6 +54,7 @@ def match(request):
         "unmatched_mentees": unmatched_mentees,
         "engagements": engagements,
         "marriages": marriages,
+        "mentors": mentors,
     })
 
 @staff_member_required
