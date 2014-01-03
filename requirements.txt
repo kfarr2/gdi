@@ -1,6 +1,6 @@
-Django==1.5.1
+Django==1.6.1
 MySQL-python==1.2.4
--e git://github.com/mdj2/djangocas.git@ffdfd8df89d3a777ad9ff6381900f6c9d8b21983#egg=djangocas-1.0.0-py2.6-dev
+-e git+https://github.com/PSU-OIT-ARC/djangocas.git#egg=djangocas
 ordereddict==1.1
 python-ldap==2.3.13
 pytz==2013b
