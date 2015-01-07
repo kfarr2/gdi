@@ -1,6 +1,14 @@
 import os
+import hashlib
 from fnmatch import fnmatch
 from django.conf import global_settings
+from varlet import variable
+try:
+    import pymysql
+    pymysql.install_as_MySQLdb()
+except ImportError:
+    pass
+
 
 PROJECT_DIR = os.path.dirname(__file__)
 HOME_DIR = os.path.normpath(os.path.join(PROJECT_DIR, '../'))
@@ -55,22 +63,22 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = variable('MEDIA_ROOT', '')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = variable('MEDIA_URL', '')
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = variable('STATIC_ROOT', '')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/static/'
+STATIC_URL = variable('STATIC_URL', '/static/')
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -130,6 +138,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'arcutils',
     'mentoring.surveys',
     'mentoring.matches',
     'mentoring.surveyadmin',
@@ -167,4 +176,29 @@ LOGGING = {
         },
     }
 }
-from local_settings import *
+
+DEBUG = variable('DEBUG', True)
+TEMPLATE_DEBUG = DEBUG
+
+NOTIFICATION_EMAIL = 'patrickv@pdx.edu'
+
+ADMINS = (
+    # ('Your Name', 'your_email@example.com'),
+)
+
+MANAGERS = ADMINS
+
+#Database config
+DATABASES = {
+    'default': {
+        'ENGINE': variable('ENGINE', 'django.db.backends.mysql'), # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': variable('NAME', ''),                      # Or path to database file if using sqlite3.
+        'USER': variable('USER', ''),                      # Not used with sqlite3.
+        'PASSWORD': variable('PASSWORD', ''),                  # Not used with sqlite3.
+        'HOST': variable('HOST', ''),                      # Set to empty string for localhost. Not used with sqlite3.
+        'PORT': variable('PORT', ''),                      # Set to empty string for default. Not used with sqlite3.
+    }
+}
+
+# Make this unique, and don't share it with anybody.
+SECRET_KEY = variable('SECRET_KEY', os.urandom(64).decode('latin1'))
