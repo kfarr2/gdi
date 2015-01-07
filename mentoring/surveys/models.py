@@ -1,5 +1,10 @@
 # Python 2.6 doesn't have OrderedDict in the collections module
-from ordereddict import OrderedDict 
+try:
+    from ordereddict import OrderedDict 
+except ImportError:
+    # but Python 3.3 does, so we're gonna do that instead
+    from collections import OrderedDict
+
 from django.db import models
 from django.contrib.auth.models import User
 

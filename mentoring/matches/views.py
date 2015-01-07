@@ -1,4 +1,10 @@
-from ordereddict import OrderedDict 
+# Python 2.6 doesn't have OrderedDict in the collections module
+try:
+    from ordereddict import OrderedDict 
+except ImportError:
+    # but Python 3.3 does, so we're gonna do that instead
+    from collections import OrderedDict
+
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
