@@ -8,7 +8,10 @@ from django.forms import Widget
 from django.forms.widgets import SubWidget, SelectMultiple
 from django.forms.util import flatatt
 from django.utils.html import conditional_escape
-from django.utils.encoding import StrAndUnicode, force_unicode
+
+# force_unicode and StrAndUnicode are deprecated as of django 1.5
+# replaced with the following
+from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.safestring import mark_safe
 
 class CheckboxInput(SubWidget):
@@ -49,7 +52,8 @@ class CheckboxInput(SubWidget):
             final_attrs['checked'] = 'checked'
         return mark_safe(u'<input%s />' % flatatt(final_attrs))
 
-class CheckboxRenderer(StrAndUnicode):
+@python_2_unicode_compatible
+class CheckboxRenderer(object):
     def __init__(self, name, value, attrs, choices):
         self.name, self.value, self.attrs = name, value, attrs
         self.choices = choices
