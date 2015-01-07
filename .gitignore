@@ -1,5 +1,5 @@
 .env
 .*
-local_settings.py
 *.sql
 *.pyc
+variables.py
