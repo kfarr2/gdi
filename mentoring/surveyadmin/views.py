@@ -41,9 +41,9 @@ def question(request, question_id):
             form.choice_forms.append(cf)
             all_valid &= cf.is_valid()
             if not all_valid:
-                print "not valid"
-                print cf._errors
-                print "/not valid"
+                print("not valid")
+                print(cf._errors)
+                print("/not valid")
 
         if all_valid:
             form.save()

@@ -459,7 +459,7 @@ def score(q, mentor):
 
     # this mentor already has too many mentees
     if mentor.number_of_mentees >= max_mentees:
-        print mentor.number_of_mentees
+        print(mentor.number_of_mentees)
         return -2
 
     score = 0
