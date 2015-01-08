@@ -1,9 +1,10 @@
-import ldap
+import sys, os
+from arcutils import ldap
 from djangocas.backends import CASBackend
 from django.contrib.auth.models import User, Group
-from django.conf import settings as SETTINGS
+from django.conf import settings
+from .settings import LDAP_URL, LDAP_BASE_DN, LDAP_DISABLED
 from django.core.exceptions import PermissionDenied
-from django.conf import settings as SETTINGS
 
 class PSUBackend(CASBackend):
     def get_or_init_user(self, username):
@@ -15,9 +16,8 @@ class PSUBackend(CASBackend):
             user.save()
 
         # get the user's first and last name
-        ld = ldap.initialize(SETTINGS.LDAP_URL)
-        ld.simple_bind_s()
-        results = ld.search_s(SETTINGS.LDAP_BASE_DN, ldap.SCOPE_SUBTREE, "uid=" + username)
+        #TODO: should probably try to test this
+        results = ldap.ldapsearch("(& (uid=" + username + ") (cn=*))")
         record = results[0][1]
         cn = record['cn']
         parts = cn[0].split(" ")
