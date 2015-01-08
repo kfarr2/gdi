@@ -91,7 +91,7 @@ class Survey(models.Model):
     class Meta:
         db_table = "survey"
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % (self.name)
 
 class Question(models.Model):
@@ -150,7 +150,7 @@ class Question(models.Model):
         db_table = 'question'
         ordering = ['survey__pk', 'rank']
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%d: %s %s' % (self.question_id, self.survey.name, self.body)
 
 class Choice(models.Model):
@@ -166,7 +166,7 @@ class Choice(models.Model):
         db_table = 'choice'
         ordering = ['rank']
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % (self.body)
 
 class Response(models.Model):
