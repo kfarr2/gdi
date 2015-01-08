@@ -15,6 +15,7 @@ HOME_DIR = os.path.normpath(os.path.join(PROJECT_DIR, '../'))
 
 LDAP_URL = "ldap://ldap-login.oit.pdx.edu"
 LDAP_BASE_DN = 'dc=pdx,dc=edu'
+LDAP_DISABLED = False
 
 SERVER_EMAIL = 'django@pdx.edu'
 
@@ -197,6 +198,15 @@ DATABASES = {
         'PASSWORD': variable('PASSWORD', ''),                  # Not used with sqlite3.
         'HOST': variable('HOST', ''),                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': variable('PORT', ''),                      # Set to empty string for default. Not used with sqlite3.
+    }
+}
+
+LDAP = {
+    'default':{
+        'host': LDAP_URL,
+        'username': 'gdi',
+        'password': '',
+        'search_dn': LDAP_BASE_DN,
     }
 }
 
