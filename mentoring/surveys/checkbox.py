@@ -9,7 +9,7 @@ from django.forms.widgets import SubWidget, SelectMultiple
 from django.forms.util import flatatt
 from django.utils.html import conditional_escape
 
-# force_unicode and StrAndUnicode are deprecated as of django 1.5
+# force_text and StrAndUnicode are deprecated as of django 1.5
 # replaced with the following
 from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.safestring import mark_safe
@@ -22,11 +22,11 @@ class CheckboxInput(SubWidget):
     def __init__(self, name, value, attrs, choice, index):
         self.name, self.value = name, value
         self.attrs = attrs
-        self.choice_value = force_unicode(choice[0])
-        self.choice_label = force_unicode(choice[1])
+        self.choice_value = force_text(choice[0])
+        self.choice_label = force_text(choice[1])
         self.index = index
 
-    def __unicode__(self):
+    def __str__(self):
         return self.render()
 
     def render(self, name=None, value=None, attrs=None, choices=()):
@@ -38,7 +38,7 @@ class CheckboxInput(SubWidget):
             label_for = ' for="%s_%s"' % (self.attrs['id'], self.index)
         else:
             label_for = ''
-        choice_label = conditional_escape(force_unicode(self.choice_label))
+        choice_label = conditional_escape(force_text(self.choice_label))
         return mark_safe(u'<label%s>%s %s</label>' % (label_for, self.tag(), choice_label))
 
     def is_checked(self):
@@ -66,7 +66,7 @@ class CheckboxRenderer(object):
         choice = self.choices[idx] # Let the IndexError propogate
         return CheckboxInput(self.name, self.value, self.attrs.copy(), choice, idx)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.render()
 
     def render(self):
@@ -75,13 +75,14 @@ class CheckboxRenderer(object):
         self.i = 0
         output.append("<ul>")
 
+
         # recursively build up the list of nested checkboxinput items
         def markup(choices, output, i):
             for choice in choices:
                 # this choice has a sublist of choices
                 if isinstance(choice[1], (list, tuple)):
                     # build up the heading for the sublist
-                    group_label = conditional_escape(force_unicode(choice[0]))
+                    group_label = conditional_escape(force_text(choice[0]))
                     output.append(u"<li><span class='checkbox-group-heading'>%s</span>" % (group_label))
                     output.append(u'<ul class="checkbox-group">')
                     # now build the list of checkboxinputs
@@ -119,7 +120,7 @@ class CheckboxSelectMultiple(SelectMultiple):
     def get_renderer(self, name, value, attrs=None, choices=()):
         """Returns an instance of the renderer."""
         if value is None: value = ''
-        str_values = set([force_unicode(v) for v in value]) # Normalize to string.
+        str_values = set([force_text(v) for v in value]) # Normalize to string.
         if attrs is None:
             attrs = {}
         if 'id' not in attrs:
