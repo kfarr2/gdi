@@ -2,47 +2,24 @@ import csv, codecs
 from io import StringIO
 from django.contrib.auth.models import User
 from django.test import TestCase
-from mentoring.matches.models import Mentor, Mentee
+from mentoring.matches.models import Mentor, Mentee, Match
 from mentoring.surveys.models import Survey, Question, Choice, Response, ResponseQuestion
 
-class UnicodeWriter:
-    """
-    A CSV writer which will write rows to CSV file "f",
-    which is encoded in the given encoding.
-    """
-
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
-        # Redirect output to a queue
-        self.queue = StringIO()
-        self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
-        self.stream = f
-        self.encoder = codecs.getincrementalencoder(encoding)()
-
-    def writerow(self, row):
-        self.writer.writerow([s.encode("utf-8") for s in row])
-        # Fetch UTF-8 output from the queue ...
-        data = self.queue.getvalue()
-        data = data.decode("utf-8")
-        # ... and reencode it into the target encoding
-        data = self.encoder.encode(data)
-        # write to the target stream
-        self.stream.write(data)
-        # empty queue
-        self.queue.truncate(0)
-
-    def writerows(self, rows):
-        for row in rows:
-            self.writerow(row)
 
 
-#TODO: Get more default models set up
 class MentoringBaseTest(TestCase):
     """
     A base test that all other tests will use.
 
     """
     def setUp(self):
+        self.make_user_models()
+        self.make_survey_models()
+        self.make_response_models()
+        self.make_mentor_models()
         super(MentoringBaseTest, self).setUp()
+
+    def make_user_models(self):
         # making a default password to use for all instances of users
         self.password = "foo"
 
@@ -68,6 +45,7 @@ class MentoringBaseTest(TestCase):
         u.save()
         self.user = u
 
+    def make_survey_models(self):
         # Make a survey 
         s = Survey(
             name='Test Survey',
@@ -77,12 +55,12 @@ class MentoringBaseTest(TestCase):
 
         # Make a question
         q = Question(
-            type=0, # Text type question
+            type=1, # Text type question
             rank=1,
             body='Nobody inspects the spammish repitition.',
             hide_label=False,
-            required=False,
-            layout=0, # Normal layout
+            required=True,
+            layout=1, # Normal layout
             survey=self.survey,
         )
         q.save()
@@ -99,16 +77,53 @@ class MentoringBaseTest(TestCase):
         c.save()
         self.choice = c
 
-
+    def make_response_models(self):
         # Make a response
+        r = Response(
+            user=self.admin,
+            survey=self.survey,
+        )
+        r.save()
+        self.response = r
 
         # Make a response question
+        rq = ResponseQuestion(
+            value='How many programmers does it take to screw in a lightbulb?',
+            response=self.response,
+            question=self.question,
+            choice=self.choice,
+        )
+        rq.save()
+        self.response_question = rq
 
+    def make_mentor_models(self):
         # Make a mentor using Admin
         m = Mentor(
             is_deleted=False,
             user=self.admin,
-
+            response=self.response,
         )
+        m.save()
+        self.mentor = m
+
+        # Make a manatee using a regular user
+        m = Mentee(
+            is_deleted=False,
+            user=self.user,
+            response=self.response,
+        )
+        m.save()
+        self.mentee = m
+
+        # Be a matchmaker
+        m = Match(
+            mentor=self.mentor,
+            mentee=self.mentee,
+            is_deleted=False,
+        )
+        m.save()
+        self.match = m
+
+
 
 
