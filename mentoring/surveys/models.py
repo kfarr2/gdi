@@ -241,7 +241,7 @@ class ResponseQuestion(models.Model):
 
     response = models.ForeignKey(Response)
     question = models.ForeignKey(Question)
-    choice = models.ForeignKey(Choice, default=None, blank=True)
+    choice = models.ForeignKey(Choice, default=None, blank=True, null=True)
 
     class Meta:
         db_table = 'response_question'
