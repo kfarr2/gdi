@@ -46,7 +46,7 @@ class MentoringBaseTest(TestCase):
         self.user = u
 
     def make_survey_models(self):
-        # Make a survey 
+        # Make a survey
         s = Survey(
             name='Test Survey',
         )
@@ -55,11 +55,11 @@ class MentoringBaseTest(TestCase):
 
         # Make a question
         q = Question(
-            type=1, # Text type question
+            type=1, # Checkbox type question
             rank=1,
             body='Nobody inspects the spammish repitition.',
             hide_label=False,
-            required=True,
+            required=False,
             layout=1, # Normal layout
             survey=self.survey,
         )
@@ -69,8 +69,8 @@ class MentoringBaseTest(TestCase):
         # Make a choice
         c = Choice(
             body='Nobody inspects the spammish repitition.',
-            value='Do not press',
-            has_textbox=True,
+            value='yes',
+            has_textbox=False,
             rank=1,
             question=self.question,
         )
@@ -88,7 +88,7 @@ class MentoringBaseTest(TestCase):
 
         # Make a response question
         rq = ResponseQuestion(
-            value='How many programmers does it take to screw in a lightbulb?',
+            value='Nobody inspects the spammish repitition.',
             response=self.response,
             question=self.question,
             choice=self.choice,
@@ -109,7 +109,7 @@ class MentoringBaseTest(TestCase):
         # Make a manatee using a regular user
         m = Mentee(
             is_deleted=False,
-            user=self.user,
+            user=self.admin,
             response=self.response,
         )
         m.save()
@@ -123,7 +123,4 @@ class MentoringBaseTest(TestCase):
         )
         m.save()
         self.match = m
-
-
-
 
