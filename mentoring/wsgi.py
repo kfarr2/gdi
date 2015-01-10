@@ -22,7 +22,7 @@ prev_sys_path = list(sys.path)
 
 root = os.path.normpath(os.path.join(os.path.dirname(__file__), "../"))
 sys.path.append(root)
-site.addsitedir(os.path.join(root, ".env/lib/python2.6/site-packages"))
+site.addsitedir(os.path.join(root, ".env/lib/python3.3/site-packages"))
 
 # Reorder sys.path so new directories at the front.
 new_sys_path = [] 
