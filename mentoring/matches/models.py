@@ -1,13 +1,13 @@
 from collections import defaultdict, namedtuple
 from datetime import datetime
 from django.db import models
+from django.conf import settings
+from mentoring.settings import MENTOR_SURVEY_PK, MENTEE_SURVEY_PK
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
 from django.template import Context, Template
 from mentoring.surveys.models import ResponseQuestion, Question, Response
 
-MENTOR_SURVEY_PK = 1
-MENTEE_SURVEY_PK = 2
 
 class SettingsManager(models.Manager):
     def default(self):

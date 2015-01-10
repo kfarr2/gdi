@@ -211,5 +211,10 @@ LDAP = {
     }
 }
 
+# Survey PK's
+MENTOR_SURVEY_PK = 1
+MENTEE_SURVEY_PK = 2
+
+
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = variable('SECRET_KEY', os.urandom(64).decode('latin1'))
