@@ -29,7 +29,7 @@ def question(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     survey = question.survey
 
-    if request.POST:
+    if request.method=="POST":
         form = QuestionForm(request.POST, instance=question)
         all_valid = form.is_valid() and all([cf.is_valid() for cf in form.choiceForms()])
         # now check all the choice forms that got added dynamically with the JS

@@ -128,7 +128,7 @@ def remove(request, object_name):
     else:
         raise ValueError("%s is not 'mentors' or 'mentees'" % (object_name,))
 
-    if request.POST:
+    if request.method=="POST":
         model.objects.get(pk=request.POST.get('id')).delete()
         messages.success(request, 'Object deleted')
         return HttpResponseRedirect(reverse("manage-ments"))
@@ -142,7 +142,7 @@ def remove(request, object_name):
 def settings(request):
     instance = Settings.objects.default()
 
-    if request.POST:
+    if request.method=="POST":
         form = SettingsForm(request.POST, instance=instance)
         if form.is_valid():
             messages.success(request, 'Settings updated')

@@ -1,18 +1,21 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from .models import Survey, Question, Response
 from .forms import SurveyForm, MenteeSurveyForm
-from mentoring.matches.models import Mentor, Mentee, MENTOR_SURVEY_PK, MENTEE_SURVEY_PK
+from mentoring.matches.models import Mentor, Mentee
 from mentoring.matches.decorators import staff_member_required
 from mentoring.matches.models import Settings
 from mentoring.utils import UnicodeWriter
 
+
+# HANGONAMINUTE. Is this view ever called?
 @login_required
 def survey(request, survey_id):
     survey = get_object_or_404(Survey, pk=survey_id)
-    if request.POST:
+    if request.method == "POST":
         form = SurveyForm(request.POST, survey=survey)
         if form.is_valid():
             form.save(user=request.user)
@@ -27,8 +30,8 @@ def survey(request, survey_id):
 
 @login_required
 def mentee(request):
-    survey = get_object_or_404(Survey, pk=MENTEE_SURVEY_PK)
-    if request.POST:
+    survey = get_object_or_404(Survey, pk=settings.MENTEE_SURVEY_PK)
+    if request.method == "POST":
         form = MenteeSurveyForm(request.POST, survey=survey)
         if form.is_valid():
             response = form.save(user=request.user)
@@ -52,8 +55,8 @@ def mentee(request):
 
 @login_required
 def mentor(request):
-    survey = get_object_or_404(Survey, pk=MENTOR_SURVEY_PK)
-    if request.POST:
+    survey = get_object_or_404(Survey, pk=settings.MENTOR_SURVEY_PK)
+    if request.method == "POST":
         form = SurveyForm(request.POST, survey=survey)
         if form.is_valid():
             response = form.save(user=request.user)
