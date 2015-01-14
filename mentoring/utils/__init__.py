@@ -23,7 +23,7 @@ class UnicodeWriter:
         try:
             data = data.decode('utf-8')                         # .decode("utf-8")
         except AttributeError:
-            data=data
+            pass
         # ... and reencode it into the target encoding
         data = self.encoder.encode(data)
         # write to the target stream
