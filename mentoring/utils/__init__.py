@@ -1,5 +1,5 @@
 import csv, codecs
-from io import StringIO
+from io import StringIO, BytesIO
 from django.contrib.auth.models import User
 
 
@@ -17,10 +17,13 @@ class UnicodeWriter:
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def writerow(self, row):
-        self.writer.writerow([s.encode("utf-8") for s in row])
+        self.writer.writerow([s for s in row])         # .encode('utf-8') --trying something
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()
-        data = data.decode("utf-8")
+        try:
+            data = data.decode('utf-8')                         # .decode("utf-8")
+        except AttributeError:
+            data=data
         # ... and reencode it into the target encoding
         data = self.encoder.encode(data)
         # write to the target stream
