@@ -7,6 +7,7 @@ Written by Konstantin, but if anything goes wrong, it was Sean.
 """
 from unittest import mock
 from unittest.mock import patch
+from model_mommy.mommy import make
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
@@ -18,6 +19,7 @@ from mentoring.matches.models import Mentor, Mentee
 from .forms import SurveyForm, MenteeSurveyForm
 from .models import Survey, ResponseQuestion, Response
 from .views import survey, mentee, mentor, done, response, report
+from .checkbox import CheckboxSelectMultiple, CheckboxInput, CheckboxRenderer
 
 class SurveyFormsTest(MentoringBaseTest):
     """
@@ -147,3 +149,16 @@ class SurveyViewsTest(MentoringBaseTest):
         response = self.client.get(reverse('surveys-report', args=[self.survey.pk,]))
         data = 'attachment; filename="%s.csv"' % (self.survey.name)
         self.assertTrue(response['Content-Disposition'], data)
+
+
+class CheckboxTest(MentoringBaseTest):
+    """
+    Tests having to do with checkbox.py
+    
+    This may be a little unnecessary to write tests for 
+    as it's almost all rendering stuff
+    """
+    def setUp(self):
+        super(CheckboxTest, self).setUp()
+        #checkbox_renderer = CheckboxRenderer()
+        #checkbox_multiple = CheckboxSelectMultiple()
