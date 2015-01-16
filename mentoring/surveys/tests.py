@@ -18,7 +18,7 @@ from mentoring.utils.tests import MentoringBaseTest
 from mentoring.matches.models import Mentor, Mentee
 from .forms import SurveyForm, MenteeSurveyForm
 from .models import Survey, ResponseQuestion, Response
-from .views import survey, mentee, mentor, done, response, report
+from .views import mentee, mentor, done, response, report
 from .checkbox import CheckboxSelectMultiple, CheckboxInput, CheckboxRenderer
 
 class SurveyFormsTest(MentoringBaseTest):
@@ -160,5 +160,32 @@ class CheckboxTest(MentoringBaseTest):
     """
     def setUp(self):
         super(CheckboxTest, self).setUp()
+        self.checkbox_renderer = CheckboxRenderer(
+            name='Manfred',
+            value='2 in the bush',
+            attrs=['kr','eb',],
+            choices=[(0,0),(1,1),(2,2),],
+        )
         #checkbox_renderer = CheckboxRenderer()
         #checkbox_multiple = CheckboxSelectMultiple()
+
+    def test_checkbox_input(self):
+        checkbox_input = CheckboxInput(
+            name='checkbox',
+            value='its weight in gold',
+            attrs=['no','po',],
+            choice=[0,1,2],
+            index=0,
+        )
+        similar_text = '<label><input n="o" name="checkbox" p="o" type="checkbox" value="0" /> 1</label>'
+        self.assertEqual(str(checkbox_input), similar_text)
+
+    def test_checkbox_renderer(self):
+        similar_text = '<ul>\n<li><label><input e="b" k="r" name="Manfred" type="checkbox" value="0" /> 0</label></li>\n<li><label><input e="b" k="r" name="Manfred" type="checkbox" value="1" /> 1</label></li>\n<li><label><input checked="checked" e="b" k="r" name="Manfred" type="checkbox" value="2" /> 2</label></li>\n</ul>'
+        self.assertEqual(str(self.checkbox_renderer), similar_text)
+
+    def test_checkbox_select_multiple(self):
+        checkbox_multiple = CheckboxSelectMultiple(
+            renderer=self.checkbox_renderer,
+        )
+        self.assertEqual(checkbox_multiple.get_renderer(name='Manfred', value='2 in the bush'), self.checkbox_renderer)
