@@ -11,7 +11,9 @@ from mentoring.matches.models import Settings
 from mentoring.utils import UnicodeWriter
 
 
-# HANGONAMINUTE. Is this view ever called?
+"""
+#TODO: Delete this. It doesn't seem to get used
+
 @login_required
 def survey(request, survey_id):
     survey = get_object_or_404(Survey, pk=survey_id)
@@ -27,6 +29,7 @@ def survey(request, survey_id):
         'form': form,
         'Question': Question,
     })
+"""
 
 @login_required
 def mentee(request):
