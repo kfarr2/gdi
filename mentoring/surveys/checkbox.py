@@ -127,7 +127,15 @@ class CheckboxSelectMultiple(SelectMultiple):
             attrs['id'] = name
         final_attrs = self.build_attrs(attrs)
         choices = list(chain(self.choices, choices))
-        return self.renderer(name, str_values, final_attrs, choices)
+
+        # For testing purposes, I replaced the line
+        #   return self.renderer(name, str_values, final_attrs, choices)
+        # with the following to avoid "CheckboxRenderer object not callable" error
+        self.renderer.name = name
+        self.renderer.str_values = str_values
+        self.renderer.final_attrs = final_attrs
+        self.renderer.choices = choices
+        return self.renderer
 
     def render(self, name, value, attrs=None, choices=()):
         return self.get_renderer(name, value, attrs, choices).render()
