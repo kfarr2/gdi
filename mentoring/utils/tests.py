@@ -53,6 +53,13 @@ class MentoringBaseTest(TestCase):
         s.save()
         self.survey = s
 
+        # Make another survey
+        s = Survey(
+            name='Test Survey The Sequel',
+        )
+        s.save()
+        self.survey_2 = s
+
         # Make a question
         q = Question(
             type=1, # Checkbox type question
@@ -65,6 +72,19 @@ class MentoringBaseTest(TestCase):
         )
         q.save()
         self.question = q
+
+        # Make a question
+        q = Question(
+            type=1, # Checkbox type question
+            rank=1,
+            body='Nobody inspects the spammish repitition.',
+            hide_label=False,
+            required=False,
+            layout=1, # Normal layout
+            survey=self.survey_2,
+        )
+        q.save()
+        self.question_2 = q
 
         # Make a choice
         c = Choice(
@@ -86,6 +106,14 @@ class MentoringBaseTest(TestCase):
         r.save()
         self.response = r
 
+        # Make another response
+        r = Response(
+            user=self.user,
+            survey=self.survey_2,
+        )
+        r.save()
+        self.response_2 = r
+
         # Make a response question
         rq = ResponseQuestion(
             value='Nobody inspects the spammish repitition.',
@@ -96,6 +124,16 @@ class MentoringBaseTest(TestCase):
         rq.save()
         self.response_question = rq
 
+        # Make a response question
+        rq = ResponseQuestion(
+            value='Nobody inspects the spammish repitition.',
+            response=self.response_2,
+            question=self.question_2,
+            choice=self.choice,
+        )
+        rq.save()
+        self.response_question_2 = rq
+        
     def make_mentor_models(self):
         # Make a mentor using Admin
         m = Mentor(
@@ -110,7 +148,7 @@ class MentoringBaseTest(TestCase):
         m = Mentee(
             is_deleted=False,
             user=self.admin,
-            response=self.response,
+            response=self.response_2,
         )
         m.save()
         self.mentee = m
@@ -123,4 +161,3 @@ class MentoringBaseTest(TestCase):
         )
         m.save()
         self.match = m
-
