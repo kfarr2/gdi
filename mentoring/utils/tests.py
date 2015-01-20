@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from mentoring.matches.models import Mentor, Mentee, Match
 from mentoring.surveys.models import Survey, Question, Choice, Response, ResponseQuestion
-
+from mentoring.matches.models import Settings
 
 
 class MentoringBaseTest(TestCase):
@@ -161,3 +161,9 @@ class MentoringBaseTest(TestCase):
         )
         m.save()
         self.match = m
+
+        s = Settings(
+        
+        )
+        s.save()
+        self.settings = s

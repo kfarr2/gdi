@@ -109,3 +109,32 @@ class MatchTest(MentoringBaseTest):
         self.client.login(username=self.admin.username, password='foo')
         response = self.client.post(reverse('mentees-delete', args=["mentees",]), data=data)
         self.assertEqual(response.status_code, 302)
+
+    def test_settings_view_get(self):
+        self.client.login(username=self.admin.username, password='foo')
+        response = self.client.get(reverse('manage-settings'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_settings_view_invalid_post(self):
+        data={
+            'instance':self.settings,
+        }
+        self.client.login(username=self.admin.username, password='foo')
+        with patch('mentoring.matches.forms.SettingsForm.is_valid', return_value=False):
+            response = self.client.post(reverse('manage-settings'), data=data)
+        self.assertEqual(response.status_code, 200)
+
+    def test_settings_view_valid_post(self):
+        data={
+            'instance':self.settings,
+        }
+        self.client.login(username=self.admin.username, password='foo')
+        with patch('mentoring.matches.forms.SettingsForm.is_valid', return_value=True):
+            with patch('mentoring.matches.forms.SettingsForm.save', return_value=True):
+                response = self.client.post(reverse('manage-settings'), data=data)
+        self.assertEqual(response.status_code, 302)
+
+    def test_report_view_get(self):
+        self.client.login(username=self.admin.username, password='foo')
+        response = self.client.get(reverse('matches-report'))
+        self.assertEqual(response.status_code, 200)
