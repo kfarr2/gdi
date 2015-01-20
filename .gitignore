@@ -4,3 +4,4 @@
 *.pyc
 variables.py
 htmlcov/*
+logs/
