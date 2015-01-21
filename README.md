@@ -18,6 +18,10 @@ Clone the database from mysql.rc.pdx.edu:
     mysqldump -u USERNAME -p -h mysql.rc.pdx.edu gdi > sql.sql
     echo "CREATE DATABASE gdi;" | mysql -u root
     mysql -u root gdi < sql.sql
+    
+Then
+
+    make migrate
 
 # Run
 
