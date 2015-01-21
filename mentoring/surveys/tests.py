@@ -154,9 +154,6 @@ class SurveyViewsTest(MentoringBaseTest):
 class CheckboxTest(MentoringBaseTest):
     """
     Tests having to do with checkbox.py
-    
-    This may be a little unnecessary to write tests for 
-    as it's almost all rendering stuff
     """
     def setUp(self):
         super(CheckboxTest, self).setUp()
