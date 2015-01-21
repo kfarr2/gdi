@@ -159,8 +159,8 @@ def settings(request):
 @staff_member_required
 def report(request):
     # someone cleverer than me could do this all in one query
-    mentors = list(Mentor.objects.all().select_related('user'))
-    mentees = list(Mentee.objects.all().select_related('user'))
+    # CHALLENGE ACCEPTED
+    mentors = mentees = list(Mentor.objects.all().select_related('user'))
     matches = list(Match.objects.all().order_by('engaged_on', 'married_on', 'completed_on'))
 
     # index everything by id
