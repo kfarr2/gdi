@@ -76,6 +76,15 @@ class MatchTest(MentoringBaseTest):
         response = self.client.post(reverse('matches-breakup'), data=data)
         self.assertEqual(response.status_code, 302)
 
+    def test_complete_view(self):
+        data={
+            'mentor_id':self.mentor.pk,
+            'mentee_id':self.mentee.pk,
+        }
+        self.client.login(username=self.admin.username, password='foo')
+        response = self.client.post(reverse('matches-complete'), data=data)
+        self.assertEqual(response.status_code, 302)
+
     def test_divorce_view(self):
         data={
             'mentor_id':self.mentor.pk,
@@ -83,4 +92,20 @@ class MatchTest(MentoringBaseTest):
         }
         self.client.login(username=self.admin.username, password='foo')
         response = self.client.post(reverse('matches-divorce'), data=data)
-        self.assertRedirects(response, reverse('manage-match'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_remove_view_get(self):
+        data={
+            'id':self.mentor.pk,
+        }
+        self.client.login(username=self.admin.username, password='foo')
+        response = self.client.get(reverse('mentors-delete', args=["mentors",]), data=data)
+        self.assertEqual(response.status_code, 200)
+
+    def test_remove_view_invalid_post(self):
+        data={
+            'id':self.mentee.pk,
+        }
+        self.client.login(username=self.admin.username, password='foo')
+        response = self.client.post(reverse('mentees-delete', args=["mentees",]), data=data)
+        self.assertEqual(response.status_code, 302)
