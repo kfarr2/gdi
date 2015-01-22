@@ -1,10 +1,12 @@
 Django==1.7.2
-coverage==3.7.1
 PyMySQL==0.6.3
--e git+https://github.com/PSU-OIT-ARC/django-arcutils.git#egg=django_arcutils-origin/master
--e git+https://github.com/PSU-OIT-ARC/djangocas.git#egg=djangocas-origin/master
+coverage==3.7.1
+-e git+https://github.com/PSU-OIT-ARC/django-arcutils.git#egg=django_arcutils-origin
+-e git+https://github.com/PSU-OIT-ARC/djangocas.git#egg=djangocas-origin
+model-mommy==1.2.2
 ordereddict==1.1
 pyasn1==0.1.7
 python3-ldap==0.9.7
 pytz==2014.10
-six==1.9.0
+six==1.7.3
+varlet==0.0.6
