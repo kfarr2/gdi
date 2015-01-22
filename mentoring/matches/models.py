@@ -1,5 +1,6 @@
 from collections import defaultdict, namedtuple
 from datetime import datetime
+from django.utils.timezone import now
 from django.db import models
 from django.conf import settings
 from mentoring.settings import MENTOR_SURVEY_PK, MENTEE_SURVEY_PK
@@ -269,7 +270,7 @@ class MatchManager(models.Manager):
         mentee = Mentee.objects.get(pk=mentee_id)
         # simply set the married_on date to something not null to flag the
         # match as married
-        m.married_on = datetime.now()
+        m.married_on = now()
         m.save()
         m.notify()
 
@@ -289,7 +290,7 @@ class MatchManager(models.Manager):
         match = Match.objects.get(mentor_id=mentor_id, mentee_id=mentee_id)
         # just set the completed_on date to something to flag this match as
         # completed
-        match.completed_on = datetime.now()
+        match.completed_on = now()
         match.save()
 
 class Match(models.Model):
@@ -459,7 +460,8 @@ def score(q, mentor):
 
     # this mentor already has too many mentees
     if mentor.number_of_mentees >= max_mentees:
-        print(mentor.number_of_mentees)
+        #Not sure why this is needed
+        #print(mentor.number_of_mentees)
         return -2
 
     score = 0
