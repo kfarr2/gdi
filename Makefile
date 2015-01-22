@@ -1,5 +1,7 @@
 .PHONY: run install clean migrate test cover
 
+.DEFAULT_GOAL := run
+
 install:
 	export CPATH=/usr/include/openldap24
 	export LIBRARY_PATH=/usr/lib/openldap24/
