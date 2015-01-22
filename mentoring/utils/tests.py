@@ -59,6 +59,7 @@ class MentoringBaseTest(TestCase):
         )
         s.save()
         self.survey_2 = s
+        self.assertEqual(str(s), s.name)
 
         # Make a question
         q = Question(
@@ -133,8 +134,14 @@ class MentoringBaseTest(TestCase):
         )
         rq.save()
         self.response_question_2 = rq
-        
+
     def make_mentor_models(self):
+        s = Settings(
+
+        )
+        s.save()
+        self.settings = s
+
         # Make a mentor using Admin
         m = Mentor(
             is_deleted=False,
@@ -162,8 +169,3 @@ class MentoringBaseTest(TestCase):
         m.save()
         self.match = m
 
-        s = Settings(
-        
-        )
-        s.save()
-        self.settings = s

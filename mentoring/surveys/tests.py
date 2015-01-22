@@ -5,9 +5,7 @@ It will not contain tests for models as they will be handled in utils/tests.py.
 Written by Konstantin, but if anything goes wrong, it was Sean.
 
 """
-from unittest import mock
 from unittest.mock import patch
-from model_mommy.mommy import make
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.core.urlresolvers import reverse
@@ -24,8 +22,7 @@ from .checkbox import CheckboxSelectMultiple, CheckboxInput, CheckboxRenderer
 class SurveyFormsTest(MentoringBaseTest):
     """
     Test most forms in the surveys app.
-    There are a lot that have to do with formatting
-    that seem unnecessary to test.
+    
     """
     def setUp(self):
         super(SurveyFormsTest, self).setUp()
@@ -36,6 +33,10 @@ class SurveyFormsTest(MentoringBaseTest):
         self.assertFalse(form.is_valid())
 
     def test_valid_survey_form(self):
+        """
+        Lots of lines missed because of subquestion 
+        stuff that's tricky to test.
+        """
         form = SurveyForm(
             survey=self.survey,
             data={
