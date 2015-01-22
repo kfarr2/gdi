@@ -7,8 +7,9 @@ To build `python-ldap` with pip on centos, you need the `openldap24-libs-devel` 
 
 Then just
 
-    make install
+    virtualenv --no-site-packages -p python3 .env
     source .env/bin/activate
+    make install
 
 ## Database
 
