@@ -1,13 +1,10 @@
-.PHONY: source install run clean migrate test cover
-
-source:
-	@if not [ -d ".env" ]; then \
-		virtualenv --no-site-packages -p python3 .env;
-	fi
-	source .env/bin/activate
+.PHONY: install run clean migrate test cover
 
 install:
-	@$(MAKE) source
+	@if not [ -d ".env" ]; then \
+		python3 -m venv .env;\
+		curl https://raw.githubusercontent.com/pypa/pip/master/contrib/get-pip.py | python3;\
+	fi
 	export CPATH=/usr/include/openldap24
 	export LIBRARY_PATH=/usr/lib/openldap24/
 	pip install -r requirements.txt
