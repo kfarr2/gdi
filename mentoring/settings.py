@@ -118,7 +118,8 @@ MIDDLEWARE_CLASSES = (
 
 ATOMIC_REQUESTS = True
 
-TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+TEST_RUNNER = 'mentoring.runner.GDIRunner'
+TEST = False
 
 AUTHENTICATION_BACKENDS = global_settings.AUTHENTICATION_BACKENDS + (
     'mentoring.backends.PSUBackend',
