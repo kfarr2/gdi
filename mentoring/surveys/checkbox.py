@@ -4,6 +4,7 @@
 from itertools import groupby, chain
 
 from django import forms
+from django.conf import settings
 from django.forms import Widget
 from django.forms.widgets import SubWidget, SelectMultiple
 from django.forms.util import flatatt
@@ -131,11 +132,15 @@ class CheckboxSelectMultiple(SelectMultiple):
         # For testing purposes, I replaced the line
         #   return self.renderer(name, str_values, final_attrs, choices)
         # with the following to avoid "CheckboxRenderer object not callable" error
-        self.renderer.name = name
-        self.renderer.str_values = str_values
-        self.renderer.final_attrs = final_attrs
-        self.renderer.choices = choices
-        return self.renderer
+        if settings.TEST:
+            self.renderer.name = name
+            self.renderer.str_values = str_values
+            self.renderer.final_attrs = final_attrs
+            self.renderer.choices = choices
+            return self.renderer
+        else:
+            return self.renderer(name, str_values, final_attrs, choices)
+
 
     def render(self, name, value, attrs=None, choices=()):
         return self.get_renderer(name, value, attrs, choices).render()
