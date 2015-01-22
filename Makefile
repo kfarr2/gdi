@@ -1,4 +1,4 @@
-.PHONY: install run clean migrate test cover
+.PHONY: run install clean migrate test cover
 
 install:
 	export CPATH=/usr/include/openldap24
