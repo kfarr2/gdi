@@ -11,26 +11,6 @@ from mentoring.matches.models import Settings
 from mentoring.utils import UnicodeWriter
 
 
-"""
-#TODO: Delete this. It doesn't seem to get used
-
-@login_required
-def survey(request, survey_id):
-    survey = get_object_or_404(Survey, pk=survey_id)
-    if request.method == "POST":
-        form = SurveyForm(request.POST, survey=survey)
-        if form.is_valid():
-            form.save(user=request.user)
-            return HttpResponseRedirect(reverse("surveys-done"))
-    else:
-        form = SurveyForm(survey=survey)
-
-    return render(request, 'surveys/survey.html', {
-        'form': form,
-        'Question': Question,
-    })
-"""
-
 @login_required
 def mentee(request):
     survey = get_object_or_404(Survey, pk=settings.MENTEE_SURVEY_PK)

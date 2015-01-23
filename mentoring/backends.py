@@ -16,7 +16,6 @@ class PSUBackend(CASBackend):
             user.save()
 
         # get the user's first and last name
-        #TODO: should probably try to test this
         results = ldap.ldapsearch("(& (uid=" + username + ") (cn=*))")
         record = results[0][1]
         cn = record['cn']
